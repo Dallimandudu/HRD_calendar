@@ -229,8 +229,13 @@ const stripTime = d => { const c = new Date(d); c.setHours(0,0,0,0); return c; }
 const isSameDay = (a,b) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 const fmtDateForUI = d => `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}(${WD_KR[d.getDay()]})`;
 const fmtISO = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+// <input type="date"> 값을 new Date(string)으로 바로 파싱하면 UTC 자정으로 해석되어
+// 한국(UTC+9) 등에서 하루가 밀리는 문제가 생깁니다. 연/월/일을 직접 분리해 로컬 자정으로 만듭니다.
+const parseDateInput = str => { const [y,m,d] = str.split('-').map(Number); return new Date(y, m-1, d); };
 const buildRangeText = (s,e) => {
-  const one = d => `${d.getMonth()+1}. ${d.getDate()}(${WD_KR[d.getDay()]})`;
+  // 시트 원본 표기("8. 31(월) ~ 9. 02(수)")와 동일하게 일(day)은 항상 2자리로 맞춥니다.
+  // 이게 안 맞으면 앱스 스크립트가 행을 문자열로 정확히 매칭하지 못해 저장이 조용히 실패합니다.
+  const one = d => `${d.getMonth()+1}. ${String(d.getDate()).padStart(2,'0')}(${WD_KR[d.getDay()]})`;
   return isSameDay(s,e) ? one(s) : `${one(s)} ~ ${one(e)}`;
 };
 
@@ -468,8 +473,8 @@ function collectForm(){
     client: document.getElementById('editClient').value.trim(),
     title: document.getElementById('editTitle').value.trim(),
     cohort: document.getElementById('editCohort').value.trim(),
-    start: new Date(document.getElementById('editStart').value),
-    end: new Date(document.getElementById('editEnd').value),
+    start: parseDateInput(document.getElementById('editStart').value),
+    end: parseDateInput(document.getElementById('editEnd').value),
     duration: document.getElementById('editDuration').value.trim(),
     region: document.getElementById('editRegion').value.trim(),
     vehicle: document.getElementById('editVehicle').value,
