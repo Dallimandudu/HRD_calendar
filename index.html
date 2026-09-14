@@ -48,13 +48,17 @@
   .cal { background: var(--cal-bg); border: 1px solid var(--cal-line); border-radius: 12px; overflow: hidden; color: var(--cal-text); box-shadow: 0 10px 28px rgba(0,0,0,.35); min-width: 0; }
   .weekday-row { display: grid; grid-template-columns: repeat(7,1fr); background: var(--cal-header); border-bottom: 1px solid var(--cal-line); min-width: 0; }
   .weekday-row div { text-align: center; font-size: 14.5px; font-weight: 600; padding: 12px 0; color: #6B6E64; }
-  .weekday-row div.sun { color: #B25C4A; }
-  .weekday-row div.sat { color: #4A6FA0; }
+  .weekday-row div.sun { color: #A32A2A; }
+  .weekday-row div.sat { color: #1E3A66; }
+  .week-row .date-cell:nth-child(6) { color: #1E3A66; }
+  .week-row .date-cell:nth-child(7) { color: #A32A2A; }
+  .week-row .date-cell.other-month:nth-child(6),
+  .week-row .date-cell.other-month:nth-child(7) { color: #C6C2B4; }
 
   .week-row { display: grid; grid-template-columns: repeat(7,1fr); column-gap: 1px; row-gap: 6px; padding: 8px 0 14px; border-top: 1px solid var(--cal-line); min-height: 132px; align-content: start; min-width: 0; }
   .week-row:first-child { border-top: none; }
 
-  .date-cell { grid-row: 1; text-align: right; padding: 3px 10px 4px 0; font-size: 14.5px; font-weight: 500; color: #4C4F47; min-width: 0; }
+  .date-cell { grid-row: 1; text-align: center; padding: 3px 0 4px; font-size: 14.5px; font-weight: 500; color: #4C4F47; min-width: 0; }
   .date-cell.other-month { color: #C6C2B4; }
   .date-cell.today .num { display: inline-block; background: var(--accent); color: #fff; border-radius: 50%; width: 26px; height: 26px; line-height: 26px; text-align: center; font-weight: 700; font-size: 14px; }
 
@@ -69,7 +73,7 @@
   .event-bar:hover { filter: brightness(0.97); transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,.22); position: relative; z-index: 5; }
 
   /* ===== 우측 푸시 패널 (데스크톱: 캘린더를 밀어내며 등장) ===== */
-  .drawer { flex: 0 0 auto; width: 0; padding-left: 0; overflow: hidden; transition: width .32s ease, padding-left .32s ease; }
+  .drawer { flex: 0 0 auto; width: 0; padding-left: 0; overflow: hidden; transition: width .32s ease, padding-left .32s ease; position: sticky; top: 28px; align-self: flex-start; }
   .drawer.open { width: 480px; padding-left: 20px; }
   .drawer-inner {
     width: 460px; height: calc(100vh - 56px); border-radius: 22px; overflow-y: auto;
@@ -242,6 +246,15 @@ function getColor(key){
   return state.categoryColors.get(key);
 }
 const effectiveColor = ev => ev.color || getColor(ev.client || ev.title);
+function shadeColor(hex, percent){
+  const num = parseInt(hex.replace('#',''), 16);
+  let r = (num >> 16) + Math.round(2.55 * percent);
+  let g = ((num >> 8) & 0x00FF) + Math.round(2.55 * percent);
+  let b = (num & 0x0000FF) + Math.round(2.55 * percent);
+  r = Math.min(255, Math.max(0, r)); g = Math.min(255, Math.max(0, g)); b = Math.min(255, Math.max(0, b));
+  return `#${((r<<16)|(g<<8)|b).toString(16).padStart(6,'0')}`;
+}
+const gradientFor = hex => `linear-gradient(135deg, ${shadeColor(hex, 14)}, ${shadeColor(hex, -12)})`;
 function hexToRgba(hex, alpha){
   const h = hex.replace('#','');
   const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
@@ -354,7 +367,7 @@ function renderCalendar(){
       bar.className = 'event-bar';
       bar.style.gridColumn = `${seg.startPos+1} / span ${seg.endPos-seg.startPos+1}`;
       bar.style.gridRow = seg.lane + 2;
-      bar.style.background = seg.ev.color || getColor(seg.ev.client || seg.ev.title);
+      bar.style.background = gradientFor(effectiveColor(seg.ev));
       bar.textContent = `${seg.ev.title}${seg.ev.cohort ? ' · '+seg.ev.cohort : ''}`;
       bar.onclick = () => openDrawer(seg.ev, false);
       row.appendChild(bar);
