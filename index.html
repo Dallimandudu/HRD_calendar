@@ -73,40 +73,53 @@
   /* ===== 우측 푸시 패널 (데스크톱: 캘린더를 밀어내며 등장) ===== */
   .drawer { flex: 0 0 auto; width: 0; padding-left: 0; overflow: hidden; transition: width .32s ease, padding-left .32s ease; }
   .drawer.open { width: 480px; padding-left: 20px; }
-  .drawer-inner { width: 460px; height: calc(100vh - 56px); background: var(--panel-alt); border: 1px solid #2A2E35; border-radius: 14px; overflow-y: auto; }
+  .drawer-inner {
+    width: 460px; height: calc(100vh - 56px); border-radius: 22px; overflow-y: auto;
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)), rgba(24,27,33,.55);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    display: flex; flex-direction: column; justify-content: center;
+  }
 
-  .drawer-head { background: #FFFFFF; color: #17181B; padding: 28px 28px 24px; position: relative; }
-  .drawer-close { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border: none; background: #F0EFEA; border-radius: 50%; font-size: 17px; cursor: pointer; }
-  .drawer-close:hover { background: #E4E2DB; }
-  .drawer-badge { display: inline-block; padding: 5px 13px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 14px; border: 1px solid rgba(0,0,0,.1); color: #33362F; }
-  .drawer-head h2 { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.4; padding-right: 40px; }
-  .drawer-head input, .drawer-badge input { font-family: var(--font); border: none; border-bottom: 2px solid var(--accent); background: transparent; outline: none; }
-  .drawer-head input#editTitle { font-size: 26px; font-weight: 800; width: 100%; padding: 2px 0; }
+  .drawer-head { color: var(--text-light); padding: 34px 30px 26px; position: relative; border-bottom: 1px solid rgba(255,255,255,.08); transition: background .25s ease; }
+  .drawer-close { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border: none; background: rgba(255,255,255,.14); color: #fff; border-radius: 50%; font-size: 17px; cursor: pointer; backdrop-filter: blur(6px); }
+  .drawer-close:hover { background: rgba(255,255,255,.22); }
+  .drawer-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 16px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12); color: #fff; backdrop-filter: blur(6px); }
+  .drawer-head h2 { margin: 0; font-size: 27px; font-weight: 800; line-height: 1.4; padding-right: 40px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .drawer-head input, .drawer-badge input { font-family: var(--font); border: none; border-bottom: 2px solid rgba(255,255,255,.6); background: transparent; outline: none; color: #fff; }
+  .drawer-head input#editTitle { font-size: 27px; font-weight: 800; width: 100%; padding: 2px 0; }
   .drawer-badge input#editClient { font-size: 13px; font-weight: 700; width: 110px; }
+  .drawer-head input::placeholder { color: rgba(255,255,255,.55); }
 
-  .drawer-body { padding: 24px 28px 32px; }
+  .drawer-body { padding: 28px 30px 34px; }
   .edit-toggle-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
-  .edit-toggle-row button { background: transparent; border: 1px solid #3A3F47; color: #D6D8D1; padding: 8px 16px; border-radius: 20px; font-size: 13.5px; cursor: pointer; font-family: var(--font); }
-  .edit-toggle-row button:hover { background: var(--panel-alt2); }
+  .edit-toggle-row button { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: #F1F0EB; padding: 8px 16px; border-radius: 20px; font-size: 13.5px; cursor: pointer; font-family: var(--font); backdrop-filter: blur(6px); }
+  .edit-toggle-row button:hover { background: rgba(255,255,255,.14); }
 
-  .info-list { display: grid; grid-template-columns: 84px 1fr; row-gap: 18px; column-gap: 16px; font-size: 17px; margin-bottom: 26px; align-items: center; }
-  .info-list dt { color: var(--text-muted); font-weight: 500; }
+  .info-list { display: grid; grid-template-columns: auto 1fr; row-gap: 16px; column-gap: 14px; font-size: 17px; margin-bottom: 26px; align-items: center; }
+  .info-list dt {
+    justify-self: start; background: rgba(255,255,255,.92); color: #1B1D21;
+    font-size: 12px; font-weight: 800; padding: 5px 13px; border-radius: 999px; white-space: nowrap;
+  }
   .info-list dd { margin: 0; font-weight: 700; color: var(--text-light); }
-  .info-list dd input, .info-list dd select { width: 100%; font-family: var(--font); font-size: 16px; font-weight: 600; background: var(--panel-alt2); border: 1px solid #3A3F47; color: var(--text-light); border-radius: 6px; padding: 9px 11px; }
+  .info-list dd input, .info-list dd select { width: 100%; font-family: var(--font); font-size: 16px; font-weight: 600; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); color: var(--text-light); border-radius: 8px; padding: 9px 11px; }
   .date-range-edit { display: flex; align-items: center; gap: 8px; }
   .date-range-edit input { flex: 1; }
 
   .staff-label { font-size: 15px; color: var(--text-muted); margin-bottom: 12px; font-weight: 500; }
   .staff-list { display: flex; flex-wrap: wrap; gap: 9px; }
-  .staff-chip { display: inline-flex; align-items: center; background: var(--panel-alt2); border: 1px solid #3A3F47; border-radius: 22px; padding: 10px 18px; font-size: 16px; font-weight: 600; color: var(--text-light); }
+  .staff-chip { display: inline-flex; align-items: center; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 22px; padding: 10px 18px; font-size: 16px; font-weight: 600; color: var(--text-light); backdrop-filter: blur(6px); }
   .staff-chip.empty { color: var(--text-muted); font-weight: 500; font-style: italic; }
   .staff-edit-list { display: flex; flex-direction: column; gap: 9px; }
-  .staff-edit-list input { font-family: var(--font); font-size: 16px; background: var(--panel-alt2); border: 1px solid #3A3F47; color: var(--text-light); border-radius: 6px; padding: 10px 13px; }
+  .staff-edit-list input { font-family: var(--font); font-size: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); color: var(--text-light); border-radius: 8px; padding: 10px 13px; }
 
   .drawer-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-  .drawer-actions button { border: none; padding: 11px 20px; border-radius: 6px; cursor: pointer; font-size: 14.5px; font-weight: 700; font-family: var(--font); }
-  .btn-cancel { background: transparent; color: #D6D8D1; border: 1px solid #3A3F47 !important; }
-  .btn-save { background: var(--accent); color: #fff; }
+  .drawer-actions button { border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-size: 14.5px; font-weight: 700; font-family: var(--font); }
+  .btn-cancel { background: rgba(255,255,255,.06); color: #E5E7E2; border: 1px solid rgba(255,255,255,.18) !important; }
+  .btn-save { background: linear-gradient(135deg, #4C8C68, #2F6B49); color: #fff; box-shadow: 0 8px 20px rgba(62,122,87,.4); }
+  .btn-save:hover { filter: brightness(1.06); }
   .drawer-save-msg { font-size: 13px; color: var(--text-muted); margin-top: 12px; min-height: 16px; }
   .drawer-save-msg.ok { color: #8FCBA6; }
   .drawer-save-msg.err { color: var(--danger); }
@@ -224,6 +237,16 @@ const buildRangeText = (s,e) => {
 function getColor(key){
   if(!state.categoryColors.has(key)) state.categoryColors.set(key, PALETTE[state.categoryColors.size % PALETTE.length]);
   return state.categoryColors.get(key);
+}
+const effectiveColor = ev => ev.color || getColor(ev.client || ev.title);
+function hexToRgba(hex, alpha){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function applyHeaderTint(color){
+  document.querySelector('.drawer-head').style.background =
+    `linear-gradient(165deg, ${hexToRgba(color,0.55)} 0%, ${hexToRgba(color,0.16)} 55%, rgba(255,255,255,0) 100%)`;
 }
 
 /* ================= 날짜 파싱 ================= */
@@ -371,8 +394,8 @@ function closeDrawer(){
 
 function renderViewMode(){
   const ev = activeEvent;
+  applyHeaderTint(effectiveColor(ev));
   document.getElementById('drawerBadge').textContent = ev.client || '기타';
-  document.getElementById('drawerBadge').style.background = getColor(ev.client || ev.title);
   document.getElementById('drawerTitle').textContent = ev.title;
   document.getElementById('dCohort').textContent = ev.cohort || '-';
   document.getElementById('dDates').textContent = isSameDay(ev.start, ev.end) ? fmtDateForUI(ev.start) : `${fmtDateForUI(ev.start)} ~ ${fmtDateForUI(ev.end)}`;
@@ -387,13 +410,14 @@ function renderViewMode(){
   ).join('') + '</div>';
 
   document.getElementById('colorWrap').innerHTML =
-    `<span class="swatch-view" style="background:${ev.color || getColor(ev.client || ev.title)}"></span>`;
+    `<span class="swatch-view" style="background:${effectiveColor(ev)}"></span>`;
 
   document.getElementById('drawerActions').style.display = 'none';
 }
 
 function renderEditMode(){
   const ev = activeEvent;
+  applyHeaderTint(effectiveColor(ev));
   document.getElementById('drawerBadge').innerHTML = `<input id="editClient" value="${ev.client}" placeholder="고객사" />`;
   document.getElementById('drawerTitle').innerHTML = `<input id="editTitle" value="${ev.title}" placeholder="교육명 입력" />`;
   document.getElementById('dCohort').innerHTML = `<input id="editCohort" value="${ev.cohort}" placeholder="예: 1차수" />`;
@@ -417,7 +441,7 @@ function renderEditMode(){
     `<input id="editStaff${i}" value="${ev.staff[i]||''}" placeholder="Staff${i+1} 이름" />`
   ).join('') + '</div>';
 
-  const currentColor = ev.color || getColor(ev.client || ev.title);
+  const currentColor = effectiveColor(ev);
   const swatches = PALETTE.map(c => {
     const sel = c.toLowerCase() === currentColor.toLowerCase() ? ' selected' : '';
     return `<button type="button" class="swatch${sel}" style="background:${c}" onclick="pickColor('${c}')"></button>`;
@@ -458,6 +482,7 @@ function collectForm(){
 function pickColor(color){
   document.getElementById('editColor').value = color;
   document.querySelectorAll('.swatch').forEach(b => b.classList.toggle('selected', b.style.background === color || rgbToHexMaybe(b.style.background) === color));
+  applyHeaderTint(color);
 }
 function rgbToHexMaybe(rgb){
   const m = rgb.match(/\d+/g);
