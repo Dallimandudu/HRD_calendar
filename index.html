@@ -4,10 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>오프라인 교육운영 캘린더(운영진 포함)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  @import url("https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/subsets/Paperlogy-dynamic-subset.css");
   :root {
     --bg-dark: #14171C;
     --panel-alt: #1B1E24;
@@ -20,7 +18,7 @@
     --cal-header: #F1EDE3;
     --accent: #3E7A57;
     --danger: #C0664A;
-    --font: 'Noto Sans KR', -apple-system, sans-serif;
+    --font: 'Paperlogy', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
   }
   * { box-sizing: border-box; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -219,7 +217,7 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzr1nSRplw5UdikxzJJBkBo5bJ2M_tV161QqbjCawToybanpBdtKUNGfxNtn2a9nHAV/exec";
 const CONFIG = { sheetId: '1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU', gid: 0, defaultYear: 2026 };
 const COL = { client:0, title:1, cohort:2, monthHint:3, range:4, duration:5, region:6, vehicle:7, headcount:8, staff1:9, staff2:10, staff3:11, color:12 };
-const PALETTE = ['#6B93A8','#66A3BF','#7FB8C4','#93C2B8','#A9CBAE','#BFD3A0','#D3D9A0','#E0D9A8','#EDE0B0','#F2EFE7'];
+const PALETTE = ['#EF8080','#F2994A','#F0C349','#7BC47F','#4DB6AC','#57B8E8','#5B8DEF','#9B87F0','#C77DD9','#F08FB0'];
 const WD_KR = ['일','월','화','수','목','금','토'];
 
 const state = { year: CONFIG.defaultYear, month: new Date().getMonth(), events: [], categoryColors: new Map() };
