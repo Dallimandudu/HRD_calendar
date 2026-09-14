@@ -219,7 +219,7 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzr1nSRplw5UdikxzJJBkBo5bJ2M_tV161QqbjCawToybanpBdtKUNGfxNtn2a9nHAV/exec";
 const CONFIG = { sheetId: '1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU', gid: 0, defaultYear: 2026 };
 const COL = { client:0, title:1, cohort:2, monthHint:3, range:4, duration:5, region:6, vehicle:7, headcount:8, staff1:9, staff2:10, staff3:11, color:12 };
-const PALETTE = ['#FDBA74','#FCA5A5','#F9A8D4','#D8B4FE','#A5B4FC','#93C5FD','#67E8F9','#5EEAD4','#86EFAC','#BEF264','#FDE047','#FDA4AF'];
+const PALETTE = ['#6B93A8','#66A3BF','#7FB8C4','#93C2B8','#A9CBAE','#BFD3A0','#D3D9A0','#E0D9A8','#EDE0B0','#F2EFE7'];
 const WD_KR = ['일','월','화','수','목','금','토'];
 
 const state = { year: CONFIG.defaultYear, month: new Date().getMonth(), events: [], categoryColors: new Map() };
@@ -371,6 +371,22 @@ function render(){
   renderCalendar();
 }
 
+/* ================= JSONP 통신 (CORS 우회) =================
+   fetch()로는 Apps Script 응답에 CORS 헤더가 없어 브라우저가 결과를 읽지 못합니다.
+   <script> 태그로 GET 요청을 걸고 콜백으로 결과를 받는 JSONP 방식은 이 제약을 받지 않습니다. */
+function jsonpRequest(params, timeoutMs = 10000){
+  return new Promise((resolve, reject) => {
+    const cbName = '__jsonp_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, timeoutMs);
+    function cleanup(){ delete window[cbName]; script.remove(); clearTimeout(timer); }
+    window[cbName] = data => { cleanup(); resolve(data); };
+    script.onerror = () => { cleanup(); reject(new Error('script load failed')); };
+    script.src = `${WEB_APP_URL}?${new URLSearchParams({ ...params, callback: cbName }).toString()}`;
+    document.head.appendChild(script);
+  });
+}
+
 /* ================= 상세/등록 패널 ================= */
 let activeEvent = null;
 let originalMatch = null;
@@ -499,18 +515,19 @@ async function saveEvent(){
   const form = collectForm();
   if(!form.title){ alert('교육명을 입력해주세요.'); return; }
 
-  const data = {
+  const dataFields = {
     client: form.client, title: form.title, cohort: form.cohort,
     start: fmtISO(form.start), rangeText: buildRangeText(form.start, form.end),
     duration: form.duration, region: form.region, vehicle: form.vehicle, headcount: form.headcount,
     staff1: form.staff[0], staff2: form.staff[1], staff3: form.staff[2], color: form.color
   };
-  const payload = isNewEvent
-    ? { action: 'addEvent', sheetId: CONFIG.sheetId, data }
-    : { action: 'updateEvent', sheetId: CONFIG.sheetId, match: originalMatch, data };
+  const getParams = isNewEvent
+    ? { action: 'addEvent', sheetId: CONFIG.sheetId, ...dataFields }
+    : { action: 'updateEvent', sheetId: CONFIG.sheetId,
+        m_title: originalMatch.title, m_cohort: originalMatch.cohort, m_rangeText: originalMatch.rangeText,
+        ...dataFields };
 
-  // 낙관적 업데이트: 구글 시트 응답(캐시로 몇 초~몇 분 지연될 수 있음)을 기다리지 않고
-  // 화면에는 즉시 반영합니다. 실제 시트 저장은 아래에서 백그라운드로 진행됩니다.
+  // 낙관적 업데이트: 구글 시트 응답을 기다리지 않고 화면에는 바로 반영합니다.
   const updated = { client: form.client, title: form.title, cohort: form.cohort,
     duration: form.duration, region: form.region, vehicle: form.vehicle, headcount: form.headcount,
     color: form.color, staff: form.staff, start: form.start, end: form.end };
@@ -522,22 +539,15 @@ async function saveEvent(){
 
   els.status.textContent = '🔄 시트에 저장 중...'; els.status.className = '';
   try{
-    // 우선 응답을 읽을 수 있는 일반 모드로 시도 — 실제 성공/실패와 서버 에러 메시지를 확인하기 위함.
-    const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-    const result = await res.json();
-    if(result.ok){
+    // JSONP는 <script> 태그로 요청을 보내므로 CORS 제약 자체를 받지 않습니다 — 실제 성공/실패를 확인할 수 있습니다.
+    const result = await jsonpRequest(getParams);
+    if(result && result.ok){
       els.status.textContent = '🟢 시트 저장 완료'; els.status.className = 'ok';
     }else{
-      els.status.textContent = `🔴 시트 저장 실패: ${result.error || '알 수 없는 오류'}`; els.status.className = 'err';
+      els.status.textContent = `🔴 시트 저장 실패: ${(result && result.error) || '알 수 없는 오류'}`; els.status.className = 'err';
     }
   }catch(e){
-    // 브라우저가 CORS 때문에 응답을 못 읽는 경우 — no-cors로 한 번 더 시도(요청은 전달되지만 성공 여부는 확인 불가)
-    try{
-      await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-      els.status.textContent = '🟡 요청은 보냈지만 응답을 확인할 수 없어요(브라우저 제한) — 시트에서 직접 확인해주세요.'; els.status.className = '';
-    }catch(e2){
-      els.status.textContent = '🔴 요청 전송 자체가 실패했습니다 — 네트워크를 확인해주세요.'; els.status.className = 'err';
-    }
+    els.status.textContent = '🔴 저장 요청 실패 — 앱스 스크립트에 doGet이 배포되어 있는지 확인해주세요.'; els.status.className = 'err';
   }
   setTimeout(fetchData, 2500); // 다른 기기/세션과의 동기화를 위한 백그라운드 재조회
 }
