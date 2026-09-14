@@ -268,8 +268,8 @@ const cellText = c => c ? (c.v ?? c.f ?? '').toString().trim() : '';
 async function fetchData(){
   els.status.textContent = '데이터 실시간 동기화 중...'; els.status.className = '';
   try{
-    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?tqx=out:json&gid=${CONFIG.gid}`;
-    const res = await fetch(url);
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?tqx=out:json&gid=${CONFIG.gid}&_=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
     if(!res.ok) throw new Error('network');
     const text = await res.text();
     const json = JSON.parse(text.substring(text.indexOf('(')+1, text.lastIndexOf(')')));
@@ -493,9 +493,6 @@ function rgbToHexMaybe(rgb){
 async function saveEvent(){
   const form = collectForm();
   if(!form.title){ alert('교육명을 입력해주세요.'); return; }
-  const msg = document.getElementById('saveMsg');
-
-  if(!WEB_APP_URL){ msg.textContent = '⚠️ 앱스 스크립트 미연동 — 시트에는 저장되지 않아요.'; msg.className = 'drawer-save-msg err'; return; }
 
   const data = {
     client: form.client, title: form.title, cohort: form.cohort,
@@ -507,17 +504,26 @@ async function saveEvent(){
     ? { action: 'addEvent', sheetId: CONFIG.sheetId, data }
     : { action: 'updateEvent', sheetId: CONFIG.sheetId, match: originalMatch, data };
 
-  msg.textContent = '저장 중...'; msg.className = 'drawer-save-msg';
+  // 낙관적 업데이트: 구글 시트 응답(캐시로 몇 초~몇 분 지연될 수 있음)을 기다리지 않고
+  // 화면에는 즉시 반영합니다. 실제 시트 저장은 아래에서 백그라운드로 진행됩니다.
+  const updated = { client: form.client, title: form.title, cohort: form.cohort,
+    duration: form.duration, region: form.region, vehicle: form.vehicle, headcount: form.headcount,
+    color: form.color, staff: form.staff, start: form.start, end: form.end };
+  if(isNewEvent){ state.events.push(updated); } else { Object.assign(activeEvent, updated); }
+  render();
+  closeDrawer();
+
+  if(!WEB_APP_URL){ els.status.textContent = '⚠️ 앱스 스크립트 미연동 — 화면에만 반영되고 시트에는 저장되지 않아요.'; els.status.className = 'err'; return; }
+
+  els.status.textContent = '🔄 시트에 저장 중...'; els.status.className = '';
   try{
-    // Apps Script 응답에는 CORS 헤더가 없어 브라우저가 정상 처리된 요청도 실패로 표시하는 경우가 많습니다.
-    // no-cors로 보내면 응답 내용은 못 읽지만 요청 자체는 정상적으로 서버에 전달됩니다.
+    // Apps Script 응답에는 CORS 헤더가 없어 no-cors로 전송합니다(응답 내용은 못 읽지만 요청은 정상 전달됨).
     await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-    msg.textContent = '✓ 저장 요청을 보냈어요 — 잠시 후 캘린더가 자동 갱신됩니다.'; msg.className = 'drawer-save-msg ok';
-    closeDrawer();
-    setTimeout(fetchData, 1200);
-    setTimeout(fetchData, 3000);
+    els.status.textContent = '🟢 시트 저장 완료';
+    els.status.className = 'ok';
+    setTimeout(fetchData, 2500); // 다른 기기/세션과의 동기화를 위한 백그라운드 재조회
   }catch(e){
-    msg.textContent = '🔴 요청 전송 실패 — 웹앱 URL 또는 네트워크를 확인해주세요.'; msg.className = 'drawer-save-msg err';
+    els.status.textContent = '🔴 시트 저장 요청 실패 — 웹앱 URL/네트워크를 확인해주세요.'; els.status.className = 'err';
   }
 }
 
