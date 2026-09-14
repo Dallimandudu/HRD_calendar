@@ -4,11 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>교육과정 캘린더 대시보드</title>
-<!-- 프리텐다드 폰트 적용 -->
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <style>
   :root {
-    /* 전체 배경(블랙/다크) 및 캘린더(화이트) 테마 변수 */
+    /* 배경은 다크, 캘린더는 화이트 테마 */
     --bg-dark: #1E1E1E;
     --text-light: #F5F5F5;
     --cal-bg: #FFFFFF;
@@ -26,7 +25,7 @@
     font-family: var(--font); line-height: 1.4;
   }
   
-  /* 해상도 100% 최적화를 위한 폭/여백 조정 */
+  /* 해상도 최적화 폭 */
   .dash { max-width: 1080px; margin: 0 auto; }
 
   /* 헤더 영역 */
@@ -34,7 +33,6 @@
     display: flex; align-items: flex-end; justify-content: space-between;
     flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
   }
-  /* 메인 타이틀 크기 확대 */
   .top h1 { font-size: 28px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.5px; }
   .top .sub { font-size: 14px; color: #BBBBBB; font-weight: 300; }
   
@@ -48,14 +46,15 @@
   .nav .month-label { font-size: 18px; font-weight: 700; min-width: 110px; text-align: center; }
   .nav .today-btn { width: auto; padding: 0 16px; font-size: 14px; font-weight: 600; }
 
-  /* 상태 표시 */
+  /* 상태 표시 바 */
   .status-bar { margin-bottom: 12px; font-size: 13px; color: #4CAF50; font-weight: 500; display: flex; justify-content: space-between; }
   .status-bar button.sync-btn {
     background: transparent; border: 1px solid #555; color: #CCC;
     padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;
   }
+  .status-bar button.sync-btn:hover { background: #333; }
 
-  /* 캘린더 본체 (화이트 테마 적용) */
+  /* 캘린더 본체 */
   .cal { 
     background: var(--cal-bg); border: 1px solid var(--cal-line); 
     border-radius: 12px; overflow: hidden; color: var(--cal-text);
@@ -69,14 +68,13 @@
   .weekday-row div.sun { color: #E53935; }
   .weekday-row div.sat { color: #1E88E5; }
 
-  /* 겹치는 일정을 위한 유연한 높이 설정 */
   .week-row { 
     display: grid; column-gap: 1px; row-gap: 3px; padding: 6px 0 12px; 
     border-top: 1px solid var(--cal-line); min-height: 110px; align-content: start;
   }
   .week-row:first-child { border-top: none; }
   
-  /* 날짜 폰트 얇게 (font-weight: 300) */
+  /* 날짜 폰트 얇게 (300) */
   .date-cell { 
     grid-row: 1; text-align: right; padding: 4px 8px 4px 0; 
     font-size: 14px; font-weight: 300; color: #333; cursor: pointer; 
@@ -89,7 +87,7 @@
     width: 24px; height: 24px; line-height: 24px; text-align: center; font-weight: 600;
   }
 
-  /* 일정 바 가독성 개선 */
+  /* 일정 바 가독성 */
   .event-bar {
     grid-row: span 1; margin: 1px 4px; padding: 3px 6px; border-radius: 4px;
     font-size: 11.5px; font-weight: 500; color: #FFF; white-space: nowrap;
@@ -98,7 +96,7 @@
   }
   .event-bar:hover { filter: brightness(0.9); transform: scale(1.01); z-index: 10; position: relative; }
 
-  /* 정보 및 입력 팝업 모달 */
+  /* 모달 레이아웃 */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 999;
@@ -168,8 +166,10 @@
       <div class="value" id="infoDates"></div>
     </div>
     
-    <label style="margin-top:20px;">출장 운영자 관리</label>
-    <input type="text" id="editOperator" placeholder="운영자 이름 입력 (예: 조성현 대리)" />
+    <label style="margin-top:20px;">출장 운영자 관리 (Staff 1)</label>
+    <input type="text" id="editOperator" placeholder="운영자 이름 입력" />
+    
+    <!-- Apps Script 업데이트용 숨김 필드 -->
     <input type="hidden" id="editOriginalStart" />
     <input type="hidden" id="editTitleHidden" />
     
@@ -182,16 +182,24 @@
 
 <script>
 /* ================= 필수 설정 영역 ================= */
-// 배포하신 앱스 스크립트 웹앱 주소를 아래에 넣어야 쓰기(수정) 기능이 작동합니다.
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzr1nSRplw5UdikxzJJBkBo5bJ2M_tV161QqbjCawToybanpBdtKUNGfxNtn2a9nHAV/exec"; 
+// Apps Script 웹앱 URL (운영자 정보를 덮어쓰기 위해 반드시 필요합니다)
+const WEB_APP_URL = ""; 
 
-// 연결할 원본 구글 시트 ID (자동 연동)
 const CONFIG = { 
   sheetId: '1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU', 
   sheetName: 'Sheet1' 
 };
 
-// 가독성을 위한 파스텔/딥 톤 컬러 팔레트 (흰 배경에 어울리도록 최적화)
+// 시트 열(Column) 인덱스 매핑
+const COL = {
+  client: 0,   // A열: 고객사
+  title: 1,    // B열: 교육명
+  cohort: 2,   // C열: 차수
+  start: 3,    // D열: 일정1(시작일)
+  end: 4,      // E열: 일정2(종료일)
+  staff1: 9    // J열: Staff1(운영자)
+};
+
 const PALETTE = ['#5C6BC0','#42A5F5','#66BB6A','#FFA726','#EF5350','#8D6E63','#AB47BC','#26A69A'];
 
 const state = {
@@ -217,8 +225,7 @@ function getColor(title){
   return state.categoryColors.get(key);
 }
 
-/* ================= 구글 시트 실시간 읽기 ================= */
-// Google Visualization API를 사용하여 실시간으로 데이터를 불러옵니다.
+/* ================= 구글 시트 연동 및 파싱 ================= */
 function parseGvizDate(cell){
   if(!cell) return null;
   const v = cell.v;
@@ -226,9 +233,11 @@ function parseGvizDate(cell){
     const m = v.match(/Date\((\d+),(\d+),(\d+)/);
     if(m) return new Date(+m[1], +m[2], +m[3]);
   }
-  const raw = (cell.f || v || '').toString().trim().replace(/\./g,'-').replace(/\//g,'-');
+  let raw = (cell.f || v || '').toString().trim();
+  raw = raw.replace(/\./g, '-').replace(/\//g, '-').replace(/\s+/g, ''); 
+  
   const d = new Date(raw);
-  return isNaN(d) ? null : d;
+  return isNaN(d.getTime()) ? null : d;
 }
 
 async function fetchData(){
@@ -243,20 +252,39 @@ async function fetchData(){
     const parsed = [];
     (json.table.rows || []).forEach(r=>{
       const c = r.c || [];
-      const title = c[0] && (c[0].v || c[0].f);
-      if(!title) return;
-      const start = parseGvizDate(c[1]);
-      if(!start) return;
-      const end = c[2] ? (parseGvizDate(c[2]) || start) : start;
-      const operator = (c[3] && (c[3].v || c[3].f)) || '';
-      parsed.push({ title, operator, start, end: end < start ? start : end });
+      
+      const client = (c[COL.client] && (c[COL.client].v || c[COL.client].f)) || '';
+      const courseName = (c[COL.title] && (c[COL.title].v || c[COL.title].f)) || '';
+      const cohort = (c[COL.cohort] && (c[COL.cohort].v || c[COL.cohort].f)) || '';
+      
+      if(!courseName) return;
+      
+      // 타이틀 구성: [고객사] 교육명 (차수)
+      let fullTitle = courseName;
+      if(client) fullTitle = `[${client}] ` + fullTitle;
+      if(cohort) fullTitle = fullTitle + ` (${cohort})`;
+      
+      const start = parseGvizDate(c[COL.start]);
+      if(!start) return; 
+      
+      const endCell = c[COL.end];
+      const end = endCell ? (parseGvizDate(endCell) || start) : start;
+      const operator = (c[COL.staff1] && (c[COL.staff1].v || c[COL.staff1].f)) || '';
+      
+      parsed.push({ 
+        title: fullTitle.trim(), 
+        rawTitle: courseName, // 쓰기 기능을 위해 원본 교육명 유지
+        operator, 
+        start, 
+        end: end < start ? start : end 
+      });
     });
     
     state.events = parsed;
     els.status.textContent = `🟢 시트 연동 완료 (${parsed.length}건)`;
     render();
   }catch(err){
-    els.status.textContent = '🔴 데이터 불러오기 실패. 시트 공유 권한을 확인해주세요.';
+    els.status.textContent = '🔴 데이터 불러오기 실패. 시트 탭 이름과 권한을 확인해주세요.';
   }
 }
 
@@ -326,12 +354,11 @@ function renderCalendar(){
       bar.className = 'event-bar';
       bar.style.gridColumn = `${seg.startPos+1} / span ${seg.endPos-seg.startPos+1}`;
       bar.style.gridRow = seg.lane + 2;
-      bar.style.background = getColor(seg.ev.title);
+      bar.style.background = getColor(seg.ev.rawTitle);
       
       const opText = seg.ev.operator ? ` [${seg.ev.operator}]` : '';
       bar.textContent = seg.ev.title + opText;
       
-      // 바 클릭 시 상세 정보 모달 열기
       bar.onclick = () => openInfoModal(seg.ev);
       row.appendChild(bar);
     });
@@ -355,7 +382,9 @@ function openInfoModal(ev) {
   
   document.getElementById('editOperator').value = ev.operator;
   document.getElementById('editOriginalStart').value = fmtDateForInput(ev.start);
-  document.getElementById('editTitleHidden').value = ev.title;
+  
+  // Apps Script에는 조합된 타이틀이 아닌 원본 교육명(B열 값)을 넘겨야 정확히 매칭됩니다.
+  document.getElementById('editTitleHidden').value = ev.rawTitle;
   
   document.getElementById('infoModalOverlay').style.display = 'flex';
 }
@@ -376,8 +405,7 @@ async function submitEditEvent() {
   
   try {
     await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-    // 저장 후 즉시 최신 데이터 다시 불러오기
-    fetchData(); 
+    fetchData(); // 저장 성공 시 리렌더링
   } catch(e) {
     els.status.textContent = '🔴 업데이트 실패';
   }
