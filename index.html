@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>교육과정 캘린더 대시보드</title>
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --bg:#F5F6F3;
+    --panel:#FFFFFF;
+    --ink:#1E2328;
+    --ink-soft:#767E76;
+    --line:#E4E6E1;
+    --bar:#23272A;
+    --bar-text:#F3F3EE;
+    --accent:#3F6B52;
+    --weekend-bg:#FAFAF6;
+    --other-month:#B9BEB8;
+    --radius:8px;
+    --font:'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:28px; background:var(--bg); color:var(--ink);
+    font-family:var(--font); line-height:1.4;
+  }
+  .dash{max-width:1180px; margin:0 auto;}
+
+  /* header */
+  .top{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap:wrap; gap:16px; margin-bottom:18px;
+  }
+  .top h1{font-size:20px; font-weight:700; margin:0 0 4px;}
+  .top .sub{font-size:13px; color:var(--ink-soft);}
+  .nav{display:flex; align-items:center; gap:10px;}
+  .nav button{
+    border:1px solid var(--line); background:var(--panel); color:var(--ink);
+    border-radius:6px; width:32px; height:32px; cursor:pointer; font-size:15px;
+  }
+  .nav button:hover{background:var(--weekend-bg);}
+  .nav .month-label{font-size:16px; font-weight:700; min-width:108px; text-align:center;}
+  .nav .today-btn{width:auto; padding:0 12px; font-size:13px; font-weight:600;}
+
+  /* sheet config panel */
+  .config{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:12px 16px; margin-bottom:16px; font-size:13px;
+  }
+  .config .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .config input[type=text]{
+    border:1px solid var(--line); border-radius:6px; padding:6px 9px; font-size:13px;
+    font-family:var(--font); min-width:200px;
+  }
+  .config button{
+    border:none; background:var(--accent); color:#fff; border-radius:6px;
+    padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .config button:disabled{opacity:.5; cursor:default;}
+  .config label.chk{display:flex; align-items:center; gap:5px; font-size:13px; color:var(--ink-soft); cursor:pointer;}
+  .config details{margin-top:8px; color:var(--ink-soft);}
+  .config summary{cursor:pointer; font-size:12.5px;}
+  .config .help{font-size:12.5px; margin-top:6px; line-height:1.6;}
+  .status{font-size:12.5px; margin-top:6px;}
+  .status.err{color:#B3452F;}
+  .status.ok{color:var(--accent);}
+  .status.demo{color:var(--ink-soft);}
+
+  /* legend */
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:12px; font-size:12.5px;}
+  .legend .chip{display:flex; align-items:center; gap:6px; color:var(--ink-soft);}
+  .legend .dot{width:10px; height:10px; border-radius:3px; flex:none;}
+
+  /* calendar */
+  .cal{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .weekday-row{display:grid; background:var(--bar);}
+  .weekday-row div{
+    color:var(--bar-text); text-align:center; font-size:12.5px; font-weight:600;
+    padding:8px 0;
+  }
+  .weekday-row div.sun{color:#E8A9A0;}
+  .weekday-row div.sat{color:#9FC3E8;}
+
+  .week-row{display:grid; column-gap:1px; row-gap:5px; padding:6px 0 10px; border-top:1px solid var(--line);}
+  .week-row:first-child{border-top:none;}
+  .date-cell{grid-row:1; text-align:right; padding:2px 8px 0 0; font-size:12.5px; font-weight:600;}
+  .date-cell.other-month{color:var(--other-month); font-weight:400;}
+  .date-cell.today .num{
+    display:inline-block; background:var(--accent); color:#fff; border-radius:50%;
+    width:20px; height:20px; line-height:20px; text-align:center; font-weight:700;
+  }
+  .event-bar{
+    grid-row:span 1; margin:0 3px; padding:3px 8px; border-radius:5px;
+    font-size:12px; font-weight:600; color:#2A2A26; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; cursor:default;
+  }
+
+  @media (max-width:700px){
+    body{padding:14px;}
+    .top{align-items:flex-start;}
+    .event-bar{font-size:10.5px;}
+    .date-cell{font-size:11px;}
+  }
+</style>
+</head>
+<body>
+<div class="dash">
+
+  <div class="top">
+    <div>
+      <h1>교육과정 캘린더 대시보드</h1>
+      <div class="sub">구글 스프레드시트와 연동해 월별 교육 일정을 한눈에 확인합니다.</div>
+    </div>
+    <div class="nav">
+      <label class="chk"><input type="checkbox" id="weekendToggle" /> 주말 표시</label>
+      <button id="prevBtn" title="이전 달">‹</button>
+      <div class="month-label" id="monthLabel"></div>
+      <button id="nextBtn" title="다음 달">›</button>
+      <button class="today-btn" id="todayBtn">오늘</button>
+    </div>
+  </div>
+
+  <div class="config">
+    <div class="row">
+      <span>구글 시트 ID</span>
+      <input type="text" id="sheetIdInput" placeholder="예: 1AbCDeFGhijKLmnoPQRstuv..." />
+      <span>탭 이름</span>
+      <input type="text" id="sheetNameInput" value="Sheet1" style="min-width:100px" />
+      <button id="loadBtn">불러오기</button>
+      <span class="status" id="statusMsg"></span>
+    </div>
+    <details>
+      <summary>연동 방법 보기</summary>
+      <div class="help">
+        1) 구글 시트를 열고 [공유] → "링크가 있는 모든 사용자" 보기 권한으로 설정합니다.<br>
+        2) 시트 URL의 <code>/d/</code> 와 <code>/edit</code> 사이 문자열이 시트 ID입니다.<br>
+        3) 시트 열 구성 (1행은 머리글, 2행부터 데이터): <b>A열 과정명 · B열 시작일 · C열 종료일 · D열 카테고리</b><br>
+        4) 날짜는 2026-11-02 또는 2026.11.02 형식을 권장합니다. 종료일이 없으면 시작일과 같은 날로 처리됩니다.
+      </div>
+    </details>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="cal">
+    <div class="weekday-row" id="weekdayRow"></div>
+    <div id="calendarBody"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================= 설정 ================= */
+// 기본으로 자동 로드할 구글 시트가 있다면 아래에 ID를 채워두세요. 비워두면 데모 데이터로 시작합니다.
+const CONFIG = { sheetId: '', sheetName: 'Sheet1' };
+
+/* ================= 데모 데이터 (시트 미연결 시 표시) ================= */
+const DEMO_EVENTS = [
+  { title:'LH(인재개발원) 2026년 LH SCP 과정_10차수/강릉', start:'2026-11-02', end:'2026-11-03', category:'LH SCP 과정' },
+  { title:'MG인재개발원', start:'2026-11-02', end:'2026-11-03', category:'MG인재개발원' },
+  { title:'LH(인재개발원) 2026년 LH SCP 과정_11차수/경주', start:'2026-11-10', end:'2026-11-11', category:'LH SCP 과정' },
+  { title:'LH(인재개발원) 2026년 LH SCP 과정_12차수/경주', start:'2026-11-17', end:'2026-11-18', category:'LH SCP 과정' },
+  { title:'관세국경인재개발원_제4기 갈등관리 리더십(6급 승진자)', start:'2026-11-18', end:'2026-11-20', category:'갈등관리 리더십' },
+  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/1차수', start:'2026-11-16', end:'2026-11-18', category:'직무스트레스 관리 교육' },
+  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/2차수', start:'2026-11-19', end:'2026-11-20', category:'직무스트레스 관리 교육' },
+  { title:'관세국경인재개발원_제5기 갈등관리 리더십(6급 승진자)', start:'2026-11-25', end:'2026-11-27', category:'갈등관리 리더십' },
+  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/3차수', start:'2026-11-23', end:'2026-11-25', category:'직무스트레스 관리 교육' },
+  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/4차수', start:'2026-11-26', end:'2026-11-27', category:'직무스트레스 관리 교육' },
+  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_속초/1차수', start:'2026-11-30', end:'2026-12-01', category:'직무스트레스 관리 교육' },
+  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_속초/2차수', start:'2026-12-02', end:'2026-12-04', category:'직무스트레스 관리 교육' },
+];
+
+const PALETTE = ['#9CC2A2','#E3B183','#B7A2D6','#8FB4D6','#DDC06B','#DD9797','#9BC7C3','#C9A6D9'];
+
+/* ================= 상태 ================= */
+const state = {
+  year: 2026, month: 10, // 데모 데이터 기준 2026년 11월(월=10, 0-indexed)로 시작
+  workweek: true,
+  events: [],
+  categoryColors: new Map(),
+};
+
+const els = {
+  monthLabel: document.getElementById('monthLabel'),
+  weekdayRow: document.getElementById('weekdayRow'),
+  calendarBody: document.getElementById('calendarBody'),
+  legend: document.getElementById('legend'),
+  status: document.getElementById('statusMsg'),
+  sheetIdInput: document.getElementById('sheetIdInput'),
+  sheetNameInput: document.getElementById('sheetNameInput'),
+};
+
+/* ================= 유틸 ================= */
+function stripTime(d){ const c = new Date(d); c.setHours(0,0,0,0); return c; }
+function isSameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function fmt(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+
+function getColor(category){
+  if(!state.categoryColors.has(category)){
+    state.categoryColors.set(category, PALETTE[state.categoryColors.size % PALETTE.length]);
+  }
+  return state.categoryColors.get(category);
+}
+
+function normalizeEvents(raw){
+  return raw.map(e=>{
+    const start = stripTime(new Date(e.start));
+    const end = e.end ? stripTime(new Date(e.end)) : start;
+    return { title:e.title, category:e.category || '기타', start, end: end < start ? start : end };
+  }).filter(e=> !isNaN(e.start) );
+}
+
+/* ================= 구글 시트 연동 ================= */
+function parseGvizDate(cell){
+  if(!cell) return null;
+  const v = cell.v;
+  if(typeof v === 'string' && v.startsWith('Date(')){
+    const m = v.match(/Date\((\d+),(\d+),(\d+)/);
+    if(m) return new Date(+m[1], +m[2], +m[3]);
+  }
+  const raw = (cell.f || v || '').toString().trim().replace(/\./g,'-').replace(/\//g,'-');
+  const d = new Date(raw);
+  return isNaN(d) ? null : d;
+}
+
+async function loadFromSheet(sheetId, sheetName){
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('네트워크 오류');
+  const text = await res.text();
+  const json = JSON.parse(text.substring(text.indexOf('(')+1, text.lastIndexOf(')')));
+  const rows = json.table.rows || [];
+  const parsed = [];
+  rows.forEach(r=>{
+    const c = r.c || [];
+    const title = c[0] && (c[0].v || c[0].f);
+    if(!title) return;
+    const start = parseGvizDate(c[1]);
+    if(!start) return;
+    const end = c[2] ? (parseGvizDate(c[2]) || start) : start;
+    const category = (c[3] && (c[3].v || c[3].f)) || '기타';
+    parsed.push({ title, start, end, category });
+  });
+  return normalizeEvents(parsed);
+}
+
+async function handleLoadClick(){
+  const id = els.sheetIdInput.value.trim();
+  const name = els.sheetNameInput.value.trim() || 'Sheet1';
+  if(!id){ setStatus('시트 ID를 입력해주세요.', 'err'); return; }
+  setStatus('불러오는 중...', '');
+  document.getElementById('loadBtn').disabled = true;
+  try{
+    const events = await loadFromSheet(id, name);
+    state.events = events;
+    state.categoryColors.clear();
+    setStatus(`${events.length}건의 일정을 불러왔습니다.`, 'ok');
+    render();
+  }catch(err){
+    setStatus('불러오지 못했습니다. 시트 공유 설정과 탭 이름을 확인해주세요.', 'err');
+  }finally{
+    document.getElementById('loadBtn').disabled = false;
+  }
+}
+
+function setStatus(msg, type){
+  els.status.textContent = msg;
+  els.status.className = 'status' + (type ? ' '+type : '');
+}
+
+/* ================= 달력 렌더링 ================= */
+function getMonthWeeks(year, month){
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month+1, 0);
+  const gridStart = new Date(first); gridStart.setDate(first.getDate() - first.getDay());
+  const gridEnd = new Date(last); gridEnd.setDate(last.getDate() + (6 - last.getDay()));
+  const weeks = [];
+  let cur = new Date(gridStart);
+  while(cur <= gridEnd){
+    const week = [];
+    for(let i=0;i<7;i++){ week.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
+    weeks.push(week);
+  }
+  return weeks;
+}
+
+function renderWeekdayHeader(){
+  const labels = ['일','월','화','수','목','금','토'];
+  const idx = state.workweek ? [1,2,3,4,5] : [0,1,2,3,4,5,6];
+  els.weekdayRow.style.gridTemplateColumns = `repeat(${idx.length}, 1fr)`;
+  els.weekdayRow.innerHTML = idx.map(i=>{
+    const cls = i===0 ? 'sun' : (i===6 ? 'sat' : '');
+    return `<div class="${cls}">${labels[i]}</div>`;
+  }).join('');
+}
+
+function renderLegend(){
+  const cats = [...new Set(state.events.map(e=>e.category))];
+  els.legend.innerHTML = cats.map(c=>
+    `<div class="chip"><span class="dot" style="background:${getColor(c)}"></span>${c}</div>`
+  ).join('');
+}
+
+function renderCalendar(){
+  const idx = state.workweek ? [1,2,3,4,5] : [0,1,2,3,4,5,6];
+  const weeks = getMonthWeeks(state.year, state.month);
+  const today = stripTime(new Date());
+  els.calendarBody.innerHTML = '';
+
+  weeks.forEach(week=>{
+    const visible = idx.map(i=>week[i]);
+
+    // 이 주에 걸치는 이벤트의 표시 구간(startPos~endPos) 계산
+    const segments = [];
+    state.events.forEach(ev=>{
+      let startPos=-1, endPos=-1;
+      visible.forEach((d,pos)=>{
+        if(d >= ev.start && d <= ev.end){ if(startPos===-1) startPos=pos; endPos=pos; }
+      });
+      if(startPos!==-1) segments.push({ ev, startPos, endPos });
+    });
+    segments.sort((a,b)=> a.startPos - b.startPos || (b.endPos-b.startPos) - (a.endPos-a.startPos));
+
+    // 레인 배치 (겹치지 않게 줄 나누기)
+    const laneEnds = [];
+    segments.forEach(seg=>{
+      let lane = laneEnds.findIndex(end => end < seg.startPos);
+      if(lane === -1){ lane = laneEnds.length; laneEnds.push(seg.endPos); }
+      else{ laneEnds[lane] = seg.endPos; }
+      seg.lane = lane;
+    });
+
+    const row = document.createElement('div');
+    row.className = 'week-row';
+    row.style.gridTemplateColumns = `repeat(${visible.length}, 1fr)`;
+
+    visible.forEach((d,pos)=>{
+      const cell = document.createElement('div');
+      const otherMonth = d.getMonth() !== state.month;
+      const isToday = isSameDay(d, today);
+      cell.className = 'date-cell' + (otherMonth ? ' other-month' : '') + (isToday ? ' today' : '');
+      cell.style.gridColumn = pos+1;
+      const label = d.getDate()===1 ? `${d.getMonth()+1}/1` : d.getDate();
+      cell.innerHTML = isToday ? `<span class="num">${d.getDate()}</span>` : label;
+      row.appendChild(cell);
+    });
+
+    segments.forEach(seg=>{
+      const bar = document.createElement('div');
+      bar.className = 'event-bar';
+      bar.style.gridColumn = `${seg.startPos+1} / span ${seg.endPos-seg.startPos+1}`;
+      bar.style.gridRow = seg.lane + 2;
+      bar.style.background = getColor(seg.ev.category);
+      bar.textContent = seg.ev.title;
+      bar.title = `${seg.ev.title}\n${fmt(seg.ev.start)} ~ ${fmt(seg.ev.end)} · ${seg.ev.category}`;
+      row.appendChild(bar);
+    });
+
+    els.calendarBody.appendChild(row);
+  });
+}
+
+function render(){
+  els.monthLabel.textContent = `${state.year}년 ${state.month+1}월`;
+  renderWeekdayHeader();
+  renderLegend();
+  renderCalendar();
+}
+
+/* ================= 이벤트 바인딩 ================= */
+document.getElementById('prevBtn').onclick = ()=>{
+  state.month--; if(state.month<0){ state.month=11; state.year--; } render();
+};
+document.getElementById('nextBtn').onclick = ()=>{
+  state.month++; if(state.month>11){ state.month=0; state.year++; } render();
+};
+document.getElementById('todayBtn').onclick = ()=>{
+  const t = new Date(); state.year = t.getFullYear(); state.month = t.getMonth(); render();
+};
+document.getElementById('weekendToggle').onchange = (e)=>{
+  state.workweek = !e.target.checked; render();
+};
+document.getElementById('loadBtn').onclick = handleLoadClick;
+
+/* ================= 초기화 ================= */
+(function init(){
+  state.events = normalizeEvents(DEMO_EVENTS);
+  setStatus('데모 데이터를 표시하고 있습니다. 구글 시트 ID를 입력하면 실제 일정으로 교체됩니다.', 'demo');
+  render();
+  if(CONFIG.sheetId){
+    els.sheetIdInput.value = CONFIG.sheetId;
+    els.sheetNameInput.value = CONFIG.sheetName;
+    handleLoadClick();
+  }
+})();
+</script>
+</body>
+</html>
