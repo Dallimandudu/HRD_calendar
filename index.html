@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>교육과정 캘린더 대시보드</title>
+<title>오프라인 교육운영 캘린더(운영진 포함)</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <style>
   :root {
@@ -20,37 +20,38 @@
   
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 20px; 
+    margin: 0; padding: 24px; 
     background: var(--bg-dark); color: var(--text-light);
-    font-family: var(--font); line-height: 1.4;
+    font-family: var(--font); line-height: 1.5;
   }
   
-  /* 해상도 최적화 폭 */
-  .dash { max-width: 1080px; margin: 0 auto; }
+  /* 캘린더 전체 크기 확대 (1080px -> 1200px) */
+  .dash { max-width: 1200px; margin: 0 auto; }
 
   /* 헤더 영역 */
   .top {
     display: flex; align-items: flex-end; justify-content: space-between;
-    flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
+    flex-wrap: wrap; gap: 16px; margin-bottom: 28px;
   }
-  .top h1 { font-size: 28px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.5px; }
-  .top .sub { font-size: 14px; color: #BBBBBB; font-weight: 300; }
+  /* 폰트 사이즈 전체적 확대 */
+  .top h1 { font-size: 32px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .top .sub { font-size: 15px; color: #BBBBBB; font-weight: 300; }
   
-  .nav { display: flex; align-items: center; gap: 12px; }
+  .nav { display: flex; align-items: center; gap: 14px; }
   .nav button {
     border: 1px solid #444; background: #2A2A2A; color: #FFF;
-    border-radius: 6px; width: 36px; height: 36px; cursor: pointer; font-size: 16px;
+    border-radius: 6px; width: 40px; height: 40px; cursor: pointer; font-size: 18px;
     transition: background 0.2s;
   }
   .nav button:hover { background: #444; }
-  .nav .month-label { font-size: 18px; font-weight: 700; min-width: 110px; text-align: center; }
-  .nav .today-btn { width: auto; padding: 0 16px; font-size: 14px; font-weight: 600; }
+  .nav .month-label { font-size: 22px; font-weight: 700; min-width: 120px; text-align: center; }
+  .nav .today-btn { width: auto; padding: 0 18px; font-size: 15px; font-weight: 600; }
 
   /* 상태 표시 바 */
-  .status-bar { margin-bottom: 12px; font-size: 13px; color: #4CAF50; font-weight: 500; display: flex; justify-content: space-between; }
+  .status-bar { margin-bottom: 14px; font-size: 14px; color: #4CAF50; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
   .status-bar button.sync-btn {
     background: transparent; border: 1px solid #555; color: #CCC;
-    padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;
+    padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-family: var(--font);
   }
   .status-bar button.sync-btn:hover { background: #333; }
 
@@ -63,63 +64,63 @@
   
   .weekday-row { display: grid; background: var(--cal-header); border-bottom: 1px solid var(--cal-line); }
   .weekday-row div {
-    text-align: center; font-size: 13px; font-weight: 600; padding: 12px 0; color: #555;
+    text-align: center; font-size: 15px; font-weight: 600; padding: 14px 0; color: #555;
   }
   .weekday-row div.sun { color: #E53935; }
   .weekday-row div.sat { color: #1E88E5; }
 
+  /* 날짜 행 최소 높이 확대 (110px -> 130px) */
   .week-row { 
-    display: grid; column-gap: 1px; row-gap: 3px; padding: 6px 0 12px; 
-    border-top: 1px solid var(--cal-line); min-height: 110px; align-content: start;
+    display: grid; column-gap: 1px; row-gap: 4px; padding: 8px 0 14px; 
+    border-top: 1px solid var(--cal-line); min-height: 130px; align-content: start;
   }
   .week-row:first-child { border-top: none; }
   
-  /* 날짜 폰트 얇게 (300) */
   .date-cell { 
-    grid-row: 1; text-align: right; padding: 4px 8px 4px 0; 
-    font-size: 14px; font-weight: 300; color: #333; cursor: pointer; 
+    grid-row: 1; text-align: right; padding: 4px 10px 6px 0; 
+    font-size: 16px; font-weight: 300; color: #333; cursor: pointer; 
     transition: background 0.2s;
   }
   .date-cell:hover { background: #F5F5F5; }
   .date-cell.other-month { color: #B0B0B0; }
   .date-cell.today .num {
     display: inline-block; background: var(--accent); color: #fff; border-radius: 50%;
-    width: 24px; height: 24px; line-height: 24px; text-align: center; font-weight: 600;
+    width: 28px; height: 28px; line-height: 28px; text-align: center; font-weight: 600; font-size: 15px;
   }
 
-  /* 일정 바 가독성 */
+  /* 일정 바 폰트 및 패딩 확대 */
   .event-bar {
-    grid-row: span 1; margin: 1px 4px; padding: 3px 6px; border-radius: 4px;
-    font-size: 11.5px; font-weight: 500; color: #FFF; white-space: nowrap;
+    grid-row: span 1; margin: 1px 6px; padding: 4px 8px; border-radius: 4px;
+    font-size: 13px; font-weight: 500; color: #FFF; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis; cursor: pointer;
     border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
   .event-bar:hover { filter: brightness(0.9); transform: scale(1.01); z-index: 10; position: relative; }
 
-  /* 모달 레이아웃 */
+  /* 모달 레이아웃 크기 및 폰트 확대 */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 999;
   }
   .modal {
-    background: #222; padding: 28px; border-radius: 12px; width: 380px;
+    background: #222; padding: 32px; border-radius: 12px; width: 420px;
     border: 1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.8); color: #FFF;
   }
-  .modal h2 { margin: 0 0 20px 0; font-size: 18px; font-weight: 700; border-bottom: 1px solid #444; padding-bottom: 12px;}
+  .modal h2 { margin: 0 0 24px 0; font-size: 20px; font-weight: 700; border-bottom: 1px solid #444; padding-bottom: 14px;}
   
-  .info-group { margin-bottom: 16px; font-size: 14px; line-height: 1.6; }
-  .info-group .label { font-size: 12px; color: #999; margin-bottom: 2px; }
+  .info-group { margin-bottom: 20px; font-size: 15px; line-height: 1.6; }
+  .info-group .label { font-size: 13px; color: #999; margin-bottom: 4px; }
   .info-group .value { font-weight: 500; }
 
-  .modal label { display: block; font-size: 12px; color: #999; margin-bottom: 6px; }
+  .modal label { display: block; font-size: 13px; color: #999; margin-bottom: 8px; }
   .modal input {
-    width: 100%; margin-bottom: 16px; padding: 10px; border-radius: 6px;
-    border: 1px solid #555; background: #111; color: #FFF; font-family: var(--font);
+    width: 100%; margin-bottom: 20px; padding: 12px; border-radius: 6px;
+    border: 1px solid #555; background: #111; color: #FFF; font-family: var(--font); font-size: 14px;
   }
-  .modal .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .modal .btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
   .modal button {
-    border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;
-    font-size: 13px; font-weight: 600; font-family: var(--font);
+    border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer;
+    font-size: 14px; font-weight: 600; font-family: var(--font);
   }
   .btn-cancel { background: transparent; color: #CCC; border: 1px solid #555 !important; }
   .btn-submit { background: var(--accent); color: #FFF; }
@@ -130,7 +131,7 @@
 <div class="dash">
   <div class="top">
     <div>
-      <h1>연수 운영 캘린더</h1>
+      <h1>오프라인 교육운영 캘린더(운영진 포함)</h1>
       <div class="sub">구글 시트 연동 | 일정을 클릭하여 출장 정보 및 상세 내용을 확인하세요.</div>
     </div>
     <div class="nav">
@@ -166,7 +167,7 @@
       <div class="value" id="infoDates"></div>
     </div>
     
-    <label style="margin-top:20px;">출장 운영자 관리 (Staff 1)</label>
+    <label style="margin-top:24px;">출장 운영자 관리 (Staff 1)</label>
     <input type="text" id="editOperator" placeholder="운영자 이름 입력" />
     
     <!-- Apps Script 업데이트용 숨김 필드 -->
@@ -182,8 +183,8 @@
 
 <script>
 /* ================= 필수 설정 영역 ================= */
-// Apps Script 웹앱 URL (운영자 정보를 덮어쓰기 위해 반드시 필요합니다)
-const WEB_APP_URL = ""; 
+// 제공해주신 최신 배포 웹앱 URL 연동
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzr1nSRplw5UdikxzJJBkBo5bJ2M_tV161QqbjCawToybanpBdtKUNGfxNtn2a9nHAV/exec"; 
 
 const CONFIG = { 
   sheetId: '1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU', 
@@ -259,7 +260,6 @@ async function fetchData(){
       
       if(!courseName) return;
       
-      // 타이틀 구성: [고객사] 교육명 (차수)
       let fullTitle = courseName;
       if(client) fullTitle = `[${client}] ` + fullTitle;
       if(cohort) fullTitle = fullTitle + ` (${cohort})`;
@@ -273,7 +273,7 @@ async function fetchData(){
       
       parsed.push({ 
         title: fullTitle.trim(), 
-        rawTitle: courseName, // 쓰기 기능을 위해 원본 교육명 유지
+        rawTitle: courseName,
         operator, 
         start, 
         end: end < start ? start : end 
@@ -382,8 +382,6 @@ function openInfoModal(ev) {
   
   document.getElementById('editOperator').value = ev.operator;
   document.getElementById('editOriginalStart').value = fmtDateForInput(ev.start);
-  
-  // Apps Script에는 조합된 타이틀이 아닌 원본 교육명(B열 값)을 넘겨야 정확히 매칭됩니다.
   document.getElementById('editTitleHidden').value = ev.rawTitle;
   
   document.getElementById('infoModalOverlay').style.display = 'flex';
@@ -405,7 +403,7 @@ async function submitEditEvent() {
   
   try {
     await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-    fetchData(); // 저장 성공 시 리렌더링
+    fetchData(); 
   } catch(e) {
     els.status.textContent = '🔴 업데이트 실패';
   }
