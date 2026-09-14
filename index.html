@@ -65,8 +65,9 @@
     font-size: 13.5px; font-weight: 600; color: #2E312B; cursor: pointer;
     border: 1px solid rgba(0,0,0,.07);
     line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
   }
-  .event-bar:hover { filter: brightness(0.97); }
+  .event-bar:hover { filter: brightness(0.97); transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,.22); position: relative; z-index: 5; }
 
   /* ===== 우측 푸시 패널 (데스크톱: 캘린더를 밀어내며 등장) ===== */
   .drawer { flex: 0 0 auto; width: 0; padding-left: 0; overflow: hidden; transition: width .32s ease, padding-left .32s ease; }
@@ -108,6 +109,13 @@
   .drawer-save-msg { font-size: 13px; color: var(--text-muted); margin-top: 12px; min-height: 16px; }
   .drawer-save-msg.ok { color: #8FCBA6; }
   .drawer-save-msg.err { color: var(--danger); }
+
+  .color-section { margin-top: 22px; }
+  .color-swatches { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .swatch { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+  .swatch.selected { border-color: var(--text-light); box-shadow: 0 0 0 2px var(--accent); }
+  .swatch-custom { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #3A3F47; padding: 0; cursor: pointer; background: transparent; }
+  .swatch-view { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); display: inline-block; }
 
   .drawer-overlay { display: none; }
 
@@ -177,6 +185,10 @@
         </dl>
         <div class="staff-label">운영진</div>
         <div id="staffWrap"></div>
+        <div class="color-section">
+          <div class="staff-label">색상</div>
+          <div id="colorWrap"></div>
+        </div>
         <div class="drawer-actions" id="drawerActions" style="display:none">
           <button class="btn-cancel" onclick="exitEditMode()">취소</button>
           <button class="btn-save" onclick="saveEvent()">저장</button>
@@ -192,7 +204,7 @@
 /* ================= 필수 설정 ================= */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzr1nSRplw5UdikxzJJBkBo5bJ2M_tV161QqbjCawToybanpBdtKUNGfxNtn2a9nHAV/exec";
 const CONFIG = { sheetId: '1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU', gid: 0, defaultYear: 2026 };
-const COL = { client:0, title:1, cohort:2, monthHint:3, range:4, duration:5, region:6, vehicle:7, headcount:8, staff1:9, staff2:10, staff3:11 };
+const COL = { client:0, title:1, cohort:2, monthHint:3, range:4, duration:5, region:6, vehicle:7, headcount:8, staff1:9, staff2:10, staff3:11, color:12 };
 const PALETTE = ['#D9E8D3','#F3DFC0','#D7E0EC','#EAD7E0','#E9DCCF','#D7E6E1','#E3DCEC','#EEDCD0'];
 const WD_KR = ['일','월','화','수','목','금','토'];
 
@@ -252,6 +264,7 @@ async function fetchData(){
         client: cellText(c[COL.client]), title, cohort: cellText(c[COL.cohort]),
         duration: cellText(c[COL.duration]), region: cellText(c[COL.region]),
         vehicle: cellText(c[COL.vehicle]), headcount: cellText(c[COL.headcount]),
+        color: cellText(c[COL.color]),
         staff, start: range.start, end: range.end
       });
     });
@@ -314,7 +327,7 @@ function renderCalendar(){
       bar.className = 'event-bar';
       bar.style.gridColumn = `${seg.startPos+1} / span ${seg.endPos-seg.startPos+1}`;
       bar.style.gridRow = seg.lane + 2;
-      bar.style.background = getColor(seg.ev.client || seg.ev.title);
+      bar.style.background = seg.ev.color || getColor(seg.ev.client || seg.ev.title);
       bar.textContent = `${seg.ev.title}${seg.ev.cohort ? ' · '+seg.ev.cohort : ''}`;
       bar.onclick = () => openDrawer(seg.ev, false);
       row.appendChild(bar);
@@ -335,7 +348,7 @@ let originalMatch = null;
 let isNewEvent = false;
 
 function blankEvent(){
-  return { client:'', title:'', cohort:'', duration:'', region:'', vehicle:'', headcount:'', staff:['','',''], start: new Date(), end: new Date() };
+  return { client:'', title:'', cohort:'', duration:'', region:'', vehicle:'', headcount:'', color:'', staff:['','',''], start: new Date(), end: new Date() };
 }
 
 function openDrawer(ev, asNew){
@@ -372,6 +385,9 @@ function renderViewMode(){
     n ? `<span class="staff-chip">${n}</span>` : `<span class="staff-chip empty">미배정</span>`
   ).join('') + '</div>';
 
+  document.getElementById('colorWrap').innerHTML =
+    `<span class="swatch-view" style="background:${ev.color || getColor(ev.client || ev.title)}"></span>`;
+
   document.getElementById('drawerActions').style.display = 'none';
 }
 
@@ -400,6 +416,18 @@ function renderEditMode(){
     `<input id="editStaff${i}" value="${ev.staff[i]||''}" placeholder="Staff${i+1} 이름" />`
   ).join('') + '</div>';
 
+  const currentColor = ev.color || getColor(ev.client || ev.title);
+  const swatches = PALETTE.map(c => {
+    const sel = c.toLowerCase() === currentColor.toLowerCase() ? ' selected' : '';
+    return `<button type="button" class="swatch${sel}" style="background:${c}" onclick="pickColor('${c}')"></button>`;
+  }).join('');
+  document.getElementById('colorWrap').innerHTML = `
+    <div class="color-swatches">
+      ${swatches}
+      <input type="color" id="customColor" class="swatch-custom" value="${currentColor}" onchange="pickColor(this.value)" />
+    </div>
+    <input type="hidden" id="editColor" value="${currentColor}" />`;
+
   document.getElementById('drawerActions').style.display = 'flex';
 }
 
@@ -421,8 +449,19 @@ function collectForm(){
     region: document.getElementById('editRegion').value.trim(),
     vehicle: document.getElementById('editVehicle').value,
     headcount: document.getElementById('editHeadcount').value.trim(),
-    staff: [0,1,2].map(i => document.getElementById(`editStaff${i}`).value.trim())
+    staff: [0,1,2].map(i => document.getElementById(`editStaff${i}`).value.trim()),
+    color: document.getElementById('editColor').value
   };
+}
+
+function pickColor(color){
+  document.getElementById('editColor').value = color;
+  document.querySelectorAll('.swatch').forEach(b => b.classList.toggle('selected', b.style.background === color || rgbToHexMaybe(b.style.background) === color));
+}
+function rgbToHexMaybe(rgb){
+  const m = rgb.match(/\d+/g);
+  if(!m) return rgb;
+  return '#' + m.slice(0,3).map(n => (+n).toString(16).padStart(2,'0')).join('');
 }
 
 async function saveEvent(){
@@ -436,7 +475,7 @@ async function saveEvent(){
     client: form.client, title: form.title, cohort: form.cohort,
     start: fmtISO(form.start), rangeText: buildRangeText(form.start, form.end),
     duration: form.duration, region: form.region, vehicle: form.vehicle, headcount: form.headcount,
-    staff1: form.staff[0], staff2: form.staff[1], staff3: form.staff[2]
+    staff1: form.staff[0], staff2: form.staff[1], staff3: form.staff[2], color: form.color
   };
   const payload = isNewEvent
     ? { action: 'addEvent', sheetId: CONFIG.sheetId, data }
