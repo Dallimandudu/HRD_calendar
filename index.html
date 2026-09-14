@@ -7,114 +7,135 @@
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
 <style>
-  :root{
-    --bg:#F5F6F3;
-    --panel:#FFFFFF;
-    --ink:#1E2328;
-    --ink-soft:#767E76;
-    --line:#E4E6E1;
-    --bar:#23272A;
-    --bar-text:#F3F3EE;
-    --accent:#3F6B52;
-    --weekend-bg:#FAFAF6;
-    --other-month:#B9BEB8;
-    --radius:8px;
-    --font:'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  :root {
+    /* 블랙 테마 색상 정의 */
+    --bg: #121212;
+    --panel: #1E1E1E;
+    --ink: #E0E0E0;
+    --ink-soft: #9E9E9E;
+    --line: #333333;
+    --bar: #2C2C2C;
+    --bar-text: #FFFFFF;
+    --accent: #4CAF50;
+    --weekend-bg: #1A1A1A;
+    --other-month: #555555;
+    --radius: 8px;
+    --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; padding:28px; background:var(--bg); color:var(--ink);
-    font-family:var(--font); line-height:1.4;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px; background: var(--bg); color: var(--ink);
+    font-family: var(--font); line-height: 1.4;
   }
-  .dash{max-width:1180px; margin:0 auto;}
+  .dash { max-width: 1280px; margin: 0 auto; }
 
-  /* header */
-  .top{
-    display:flex; align-items:flex-end; justify-content:space-between;
-    flex-wrap:wrap; gap:16px; margin-bottom:18px;
+  /* 상단 헤더 */
+  .top {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px; margin-bottom: 18px;
   }
-  .top h1{font-size:20px; font-weight:700; margin:0 0 4px;}
-  .top .sub{font-size:13px; color:var(--ink-soft);}
-  .nav{display:flex; align-items:center; gap:10px;}
-  .nav button{
-    border:1px solid var(--line); background:var(--panel); color:var(--ink);
-    border-radius:6px; width:32px; height:32px; cursor:pointer; font-size:15px;
+  .top h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; color: #FFF; }
+  .top .sub { font-size: 13px; color: var(--ink-soft); }
+  .nav { display: flex; align-items: center; gap: 10px; }
+  .nav button {
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 15px;
   }
-  .nav button:hover{background:var(--weekend-bg);}
-  .nav .month-label{font-size:16px; font-weight:700; min-width:108px; text-align:center;}
-  .nav .today-btn{width:auto; padding:0 12px; font-size:13px; font-weight:600;}
+  .nav button:hover { background: #333; }
+  .nav .month-label { font-size: 16px; font-weight: 700; min-width: 108px; text-align: center; color: #FFF;}
+  .nav .today-btn { width: auto; padding: 0 12px; font-size: 13px; font-weight: 600; }
 
-  /* sheet config panel */
-  .config{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    padding:12px 16px; margin-bottom:16px; font-size:13px;
+  /* 시트 설정 패널 */
+  .config {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 16px; margin-bottom: 16px; font-size: 13px;
   }
-  .config .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .config input[type=text]{
-    border:1px solid var(--line); border-radius:6px; padding:6px 9px; font-size:13px;
-    font-family:var(--font); min-width:200px;
+  .config .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .config input[type=text] {
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; font-size: 13px;
+    background: #2A2A2A; color: #FFF; font-family: var(--font); min-width: 200px;
   }
-  .config button{
-    border:none; background:var(--accent); color:#fff; border-radius:6px;
-    padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer;
+  .config button {
+    border: none; background: var(--accent); color: #fff; border-radius: 6px;
+    padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
   }
-  .config button:disabled{opacity:.5; cursor:default;}
-  .config label.chk{display:flex; align-items:center; gap:5px; font-size:13px; color:var(--ink-soft); cursor:pointer;}
-  .config details{margin-top:8px; color:var(--ink-soft);}
-  .config summary{cursor:pointer; font-size:12.5px;}
-  .config .help{font-size:12.5px; margin-top:6px; line-height:1.6;}
-  .status{font-size:12.5px; margin-top:6px;}
-  .status.err{color:#B3452F;}
-  .status.ok{color:var(--accent);}
-  .status.demo{color:var(--ink-soft);}
+  .config button:disabled { opacity: .5; cursor: default; }
+  .config label.chk { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+  
+  .status { font-size: 12.5px; margin-top: 6px; }
+  .status.err { color: #E57373; }
+  .status.ok { color: var(--accent); }
 
-  /* legend */
-  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-bottom:12px; font-size:12.5px;}
-  .legend .chip{display:flex; align-items:center; gap:6px; color:var(--ink-soft);}
-  .legend .dot{width:10px; height:10px; border-radius:3px; flex:none;}
-
-  /* calendar */
-  .cal{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
-  .weekday-row{display:grid; background:var(--bar);}
-  .weekday-row div{
-    color:var(--bar-text); text-align:center; font-size:12.5px; font-weight:600;
-    padding:8px 0;
+  /* 캘린더 본체 */
+  .cal { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .weekday-row { display: grid; background: var(--bar); border-bottom: 1px solid var(--line); }
+  .weekday-row div {
+    color: var(--bar-text); text-align: center; font-size: 13px; font-weight: 600;
+    padding: 10px 0;
   }
-  .weekday-row div.sun{color:#E8A9A0;}
-  .weekday-row div.sat{color:#9FC3E8;}
+  .weekday-row div.sun { color: #E57373; }
+  .weekday-row div.sat { color: #64B5F6; }
 
-  .week-row{display:grid; column-gap:1px; row-gap:5px; padding:6px 0 10px; border-top:1px solid var(--line);}
-  .week-row:first-child{border-top:none;}
-  .date-cell{grid-row:1; text-align:right; padding:2px 8px 0 0; font-size:12.5px; font-weight:600;}
-  .date-cell.other-month{color:var(--other-month); font-weight:400;}
-  .date-cell.today .num{
-    display:inline-block; background:var(--accent); color:#fff; border-radius:50%;
-    width:20px; height:20px; line-height:20px; text-align:center; font-weight:700;
+  .week-row { 
+    display: grid; column-gap: 1px; row-gap: 5px; padding: 6px 0 10px; 
+    border-top: 1px solid var(--line); min-height: 140px; /* 칸 크게 */
   }
-  .event-bar{
-    grid-row:span 1; margin:0 3px; padding:3px 8px; border-radius:5px;
-    font-size:12px; font-weight:600; color:#2A2A26; white-space:nowrap;
-    overflow:hidden; text-overflow:ellipsis; cursor:default;
+  .week-row:first-child { border-top: none; }
+  
+  .date-cell { 
+    grid-row: 1; text-align: right; padding: 4px 8px 0 0; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .date-cell:hover { background: rgba(255,255,255,0.05); }
+  .date-cell.other-month { color: var(--other-month); font-weight: 400; }
+  .date-cell.today .num {
+    display: inline-block; background: var(--accent); color: #fff; border-radius: 50%;
+    width: 22px; height: 22px; line-height: 22px; text-align: center; font-weight: 700;
   }
 
-  @media (max-width:700px){
-    body{padding:14px;}
-    .top{align-items:flex-start;}
-    .event-bar{font-size:10.5px;}
-    .date-cell{font-size:11px;}
+  /* 이벤트 바 */
+  .event-bar {
+    grid-row: span 1; margin: 0 4px; padding: 4px 8px; border-radius: 5px;
+    font-size: 12px; font-weight: 600; color: #FFF; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
+  .event-bar:hover { filter: brightness(1.1); }
+
+  /* 모달 팝업 디자인 */
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal {
+    background: var(--panel); padding: 24px; border-radius: var(--radius); width: 340px;
+    border: 1px solid var(--line); box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .modal h2 { margin: 0 0 16px 0; font-size: 16px; color: #FFF; }
+  .modal label { display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+  .modal input {
+    width: 100%; margin-bottom: 14px; padding: 8px 10px; border-radius: 4px;
+    border: 1px solid var(--line); background: #2A2A2A; color: #FFF; font-family: var(--font);
+  }
+  .modal .btn-group { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+  .modal button {
+    border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;
+    font-size: 13px; font-weight: 600; font-family: var(--font);
+  }
+  .btn-cancel { background: transparent; color: var(--ink); border: 1px solid var(--line) !important; }
+  .btn-submit { background: var(--accent); color: #FFF; }
+
 </style>
 </head>
 <body>
 <div class="dash">
-
   <div class="top">
     <div>
       <h1>교육과정 캘린더 대시보드</h1>
-      <div class="sub">구글 스프레드시트와 연동해 월별 교육 일정을 한눈에 확인합니다.</div>
+      <div class="sub">구글 스프레드시트와 연동해 월별 교육 일정 및 운영자 출장을 관리합니다.</div>
     </div>
     <div class="nav">
-      <label class="chk"><input type="checkbox" id="weekendToggle" /> 주말 표시</label>
+      <label class="chk"><input type="checkbox" id="weekendToggle" /> 주말 숨기기</label>
       <button id="prevBtn" title="이전 달">‹</button>
       <div class="month-label" id="monthLabel"></div>
       <button id="nextBtn" title="다음 달">›</button>
@@ -125,59 +146,74 @@
   <div class="config">
     <div class="row">
       <span>구글 시트 ID</span>
-      <input type="text" id="sheetIdInput" placeholder="예: 1AbCDeFGhijKLmnoPQRstuv..." />
+      <input type="text" id="sheetIdInput" placeholder="시트 ID 입력" />
       <span>탭 이름</span>
       <input type="text" id="sheetNameInput" value="Sheet1" style="min-width:100px" />
       <button id="loadBtn">불러오기</button>
       <span class="status" id="statusMsg"></span>
     </div>
-    <details>
-      <summary>연동 방법 보기</summary>
-      <div class="help">
-        1) 구글 시트를 열고 [공유] → "링크가 있는 모든 사용자" 보기 권한으로 설정합니다.<br>
-        2) 시트 URL의 <code>/d/</code> 와 <code>/edit</code> 사이 문자열이 시트 ID입니다.<br>
-        3) 시트 열 구성 (1행은 머리글, 2행부터 데이터): <b>A열 과정명 · B열 시작일 · C열 종료일 · D열 카테고리</b><br>
-        4) 날짜는 2026-11-02 또는 2026.11.02 형식을 권장합니다. 종료일이 없으면 시작일과 같은 날로 처리됩니다.
-      </div>
-    </details>
   </div>
-
-  <div class="legend" id="legend"></div>
 
   <div class="cal">
     <div class="weekday-row" id="weekdayRow"></div>
     <div id="calendarBody"></div>
   </div>
+</div>
 
+<!-- 일정 추가 모달 -->
+<div class="modal-overlay" id="addModalOverlay">
+  <div class="modal">
+    <h2>신규 교육 일정 추가</h2>
+    <label>교육명</label>
+    <input type="text" id="newTitle" placeholder="예: 2026년 SCP 과정" />
+    <label>시작일</label>
+    <input type="date" id="newStart" />
+    <label>종료일</label>
+    <input type="date" id="newEnd" />
+    <label>운영자 (선택)</label>
+    <input type="text" id="newOperator" placeholder="예: 조성현 대리" />
+    <div class="btn-group">
+      <button class="btn-cancel" onclick="closeModal('addModalOverlay')">취소</button>
+      <button class="btn-submit" onclick="submitNewEvent()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 운영자 출장 등록 모달 -->
+<div class="modal-overlay" id="editModalOverlay">
+  <div class="modal">
+    <h2>운영자 출장 정보 기입</h2>
+    <label>교육명</label>
+    <input type="text" id="editTitle" disabled style="opacity:0.7" />
+    <label>출장 운영자 기입</label>
+    <input type="text" id="editOperator" placeholder="현장 운영 담당자 입력 (예: 조성현 대리)" />
+    <input type="hidden" id="editOriginalStart" />
+    <div class="btn-group">
+      <button class="btn-cancel" onclick="closeModal('editModalOverlay')">취소</button>
+      <button class="btn-submit" onclick="submitEditEvent()">수정 저장</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ================= 설정 ================= */
-// 기본으로 자동 로드할 구글 시트가 있다면 아래에 ID를 채워두세요. 비워두면 데모 데이터로 시작합니다.
+/* ================= 앱스 스크립트 웹앱 주소 입력란 ================= */
+// 배포 후 생성되는 웹앱 URL을 아래에 붙여넣으세요.
+const WEB_APP_URL = ""; 
+
 const CONFIG = { sheetId: '', sheetName: 'Sheet1' };
 
-/* ================= 데모 데이터 (시트 미연결 시 표시) ================= */
+/* 데모 데이터 - 운영자(operator) 필드 추가 */
 const DEMO_EVENTS = [
-  { title:'LH(인재개발원) 2026년 LH SCP 과정_10차수/강릉', start:'2026-11-02', end:'2026-11-03', category:'LH SCP 과정' },
-  { title:'MG인재개발원', start:'2026-11-02', end:'2026-11-03', category:'MG인재개발원' },
-  { title:'LH(인재개발원) 2026년 LH SCP 과정_11차수/경주', start:'2026-11-10', end:'2026-11-11', category:'LH SCP 과정' },
-  { title:'LH(인재개발원) 2026년 LH SCP 과정_12차수/경주', start:'2026-11-17', end:'2026-11-18', category:'LH SCP 과정' },
-  { title:'관세국경인재개발원_제4기 갈등관리 리더십(6급 승진자)', start:'2026-11-18', end:'2026-11-20', category:'갈등관리 리더십' },
-  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/1차수', start:'2026-11-16', end:'2026-11-18', category:'직무스트레스 관리 교육' },
-  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/2차수', start:'2026-11-19', end:'2026-11-20', category:'직무스트레스 관리 교육' },
-  { title:'관세국경인재개발원_제5기 갈등관리 리더십(6급 승진자)', start:'2026-11-25', end:'2026-11-27', category:'갈등관리 리더십' },
-  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/3차수', start:'2026-11-23', end:'2026-11-25', category:'직무스트레스 관리 교육' },
-  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_대전/4차수', start:'2026-11-26', end:'2026-11-27', category:'직무스트레스 관리 교육' },
-  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_속초/1차수', start:'2026-11-30', end:'2026-12-01', category:'직무스트레스 관리 교육' },
-  { title:'LH(노사협력처) 2026년 직무스트레스 관리 교육_속초/2차수', start:'2026-12-02', end:'2026-12-04', category:'직무스트레스 관리 교육' },
+  { title:'LH SCP 과정_10차수/강릉', start:'2026-11-02', end:'2026-11-03', operator:'' },
+  { title:'제4기 갈등관리 리더십', start:'2026-11-18', end:'2026-11-20', operator:'조성현 대리' },
 ];
 
-const PALETTE = ['#9CC2A2','#E3B183','#B7A2D6','#8FB4D6','#DDC06B','#DD9797','#9BC7C3','#C9A6D9'];
+// 블랙 테마에 어울리는 팔레트
+const PALETTE = ['#2E7D32','#0277BD','#AD1457','#F9A825','#6A1B9A','#00695C'];
 
-/* ================= 상태 ================= */
 const state = {
-  year: 2026, month: 10, // 데모 데이터 기준 2026년 11월(월=10, 0-indexed)로 시작
-  workweek: true,
+  year: 2026, month: 10, 
+  workweek: true, // true=월~일 표시, false=월~금 표시 (주말 숨기기)
   events: [],
   categoryColors: new Map(),
 };
@@ -186,33 +222,35 @@ const els = {
   monthLabel: document.getElementById('monthLabel'),
   weekdayRow: document.getElementById('weekdayRow'),
   calendarBody: document.getElementById('calendarBody'),
-  legend: document.getElementById('legend'),
   status: document.getElementById('statusMsg'),
   sheetIdInput: document.getElementById('sheetIdInput'),
   sheetNameInput: document.getElementById('sheetNameInput'),
 };
 
-/* ================= 유틸 ================= */
 function stripTime(d){ const c = new Date(d); c.setHours(0,0,0,0); return c; }
 function isSameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-function fmt(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+function fmtDateForInput(d) {
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 
-function getColor(category){
-  if(!state.categoryColors.has(category)){
-    state.categoryColors.set(category, PALETTE[state.categoryColors.size % PALETTE.length]);
+function getColor(title){
+  const key = title.split(' ')[0];
+  if(!state.categoryColors.has(key)){
+    state.categoryColors.set(key, PALETTE[state.categoryColors.size % PALETTE.length]);
   }
-  return state.categoryColors.get(category);
+  return state.categoryColors.get(key);
 }
 
 function normalizeEvents(raw){
   return raw.map(e=>{
     const start = stripTime(new Date(e.start));
     const end = e.end ? stripTime(new Date(e.end)) : start;
-    return { title:e.title, category:e.category || '기타', start, end: end < start ? start : end };
+    return { title:e.title, operator:e.operator || '', start, end: end < start ? start : end };
   }).filter(e=> !isNaN(e.start) );
 }
 
-/* ================= 구글 시트 연동 ================= */
+/* ================= 구글 시트 데이터 로드 (Gviz) ================= */
 function parseGvizDate(cell){
   if(!cell) return null;
   const v = cell.v;
@@ -240,8 +278,8 @@ async function loadFromSheet(sheetId, sheetName){
     const start = parseGvizDate(c[1]);
     if(!start) return;
     const end = c[2] ? (parseGvizDate(c[2]) || start) : start;
-    const category = (c[3] && (c[3].v || c[3].f)) || '기타';
-    parsed.push({ title, start, end, category });
+    const operator = (c[3] && (c[3].v || c[3].f)) || ''; // D열을 운영자로 사용
+    parsed.push({ title, start, end, operator });
   });
   return normalizeEvents(parsed);
 }
@@ -251,31 +289,35 @@ async function handleLoadClick(){
   const name = els.sheetNameInput.value.trim() || 'Sheet1';
   if(!id){ setStatus('시트 ID를 입력해주세요.', 'err'); return; }
   setStatus('불러오는 중...', '');
-  document.getElementById('loadBtn').disabled = true;
   try{
     const events = await loadFromSheet(id, name);
     state.events = events;
     state.categoryColors.clear();
-    setStatus(`${events.length}건의 일정을 불러왔습니다.`, 'ok');
+    setStatus(`${events.length}건 로드 완료`, 'ok');
     render();
   }catch(err){
-    setStatus('불러오지 못했습니다. 시트 공유 설정과 탭 이름을 확인해주세요.', 'err');
-  }finally{
-    document.getElementById('loadBtn').disabled = false;
+    setStatus('불러오기 실패. 권한 및 탭 이름 확인.', 'err');
   }
 }
-
 function setStatus(msg, type){
   els.status.textContent = msg;
   els.status.className = 'status' + (type ? ' '+type : '');
 }
 
-/* ================= 달력 렌더링 ================= */
+/* ================= 달력 렌더링 (월요일 시작) ================= */
 function getMonthWeeks(year, month){
   const first = new Date(year, month, 1);
   const last = new Date(year, month+1, 0);
-  const gridStart = new Date(first); gridStart.setDate(first.getDate() - first.getDay());
-  const gridEnd = new Date(last); gridEnd.setDate(last.getDate() + (6 - last.getDay()));
+  
+  // 월요일=0, 일요일=6으로 조정
+  const firstDayOfWeek = (first.getDay() + 6) % 7; 
+  const gridStart = new Date(first); 
+  gridStart.setDate(first.getDate() - firstDayOfWeek);
+  
+  const lastDayOfWeek = (last.getDay() + 6) % 7;
+  const gridEnd = new Date(last); 
+  gridEnd.setDate(last.getDate() + (6 - lastDayOfWeek));
+  
   const weeks = [];
   let cur = new Date(gridStart);
   while(cur <= gridEnd){
@@ -287,32 +329,23 @@ function getMonthWeeks(year, month){
 }
 
 function renderWeekdayHeader(){
-  const labels = ['일','월','화','수','목','금','토'];
-  const idx = state.workweek ? [1,2,3,4,5] : [0,1,2,3,4,5,6];
+  const labels = ['월','화','수','목','금','토','일'];
+  const idx = state.workweek ? [0,1,2,3,4,5,6] : [0,1,2,3,4]; // true면 주말표시
   els.weekdayRow.style.gridTemplateColumns = `repeat(${idx.length}, 1fr)`;
   els.weekdayRow.innerHTML = idx.map(i=>{
-    const cls = i===0 ? 'sun' : (i===6 ? 'sat' : '');
+    const cls = i===5 ? 'sat' : (i===6 ? 'sun' : '');
     return `<div class="${cls}">${labels[i]}</div>`;
   }).join('');
 }
 
-function renderLegend(){
-  const cats = [...new Set(state.events.map(e=>e.category))];
-  els.legend.innerHTML = cats.map(c=>
-    `<div class="chip"><span class="dot" style="background:${getColor(c)}"></span>${c}</div>`
-  ).join('');
-}
-
 function renderCalendar(){
-  const idx = state.workweek ? [1,2,3,4,5] : [0,1,2,3,4,5,6];
+  const idx = state.workweek ? [0,1,2,3,4,5,6] : [0,1,2,3,4];
   const weeks = getMonthWeeks(state.year, state.month);
   const today = stripTime(new Date());
   els.calendarBody.innerHTML = '';
 
   weeks.forEach(week=>{
     const visible = idx.map(i=>week[i]);
-
-    // 이 주에 걸치는 이벤트의 표시 구간(startPos~endPos) 계산
     const segments = [];
     state.events.forEach(ev=>{
       let startPos=-1, endPos=-1;
@@ -323,7 +356,6 @@ function renderCalendar(){
     });
     segments.sort((a,b)=> a.startPos - b.startPos || (b.endPos-b.startPos) - (a.endPos-a.startPos));
 
-    // 레인 배치 (겹치지 않게 줄 나누기)
     const laneEnds = [];
     segments.forEach(seg=>{
       let lane = laneEnds.findIndex(end => end < seg.startPos);
@@ -344,6 +376,9 @@ function renderCalendar(){
       cell.style.gridColumn = pos+1;
       const label = d.getDate()===1 ? `${d.getMonth()+1}/1` : d.getDate();
       cell.innerHTML = isToday ? `<span class="num">${d.getDate()}</span>` : label;
+      
+      // 날짜 클릭 시 일정 추가
+      cell.onclick = () => openAddModal(d);
       row.appendChild(cell);
     });
 
@@ -352,12 +387,20 @@ function renderCalendar(){
       bar.className = 'event-bar';
       bar.style.gridColumn = `${seg.startPos+1} / span ${seg.endPos-seg.startPos+1}`;
       bar.style.gridRow = seg.lane + 2;
-      bar.style.background = getColor(seg.ev.category);
-      bar.textContent = seg.ev.title;
-      bar.title = `${seg.ev.title}\n${fmt(seg.ev.start)} ~ ${fmt(seg.ev.end)} · ${seg.ev.category}`;
+      bar.style.background = getColor(seg.ev.title);
+      
+      const opText = seg.ev.operator ? ` [${seg.ev.operator}]` : '';
+      bar.textContent = seg.ev.title + opText;
+      bar.title = `운영자 변경 클릭! \n${seg.ev.title}\n출장자: ${seg.ev.operator || '미정'}`;
+      
+      // 교육(바) 클릭 시 운영자 출장 모달 팝업
+      bar.onclick = (e) => {
+        e.stopPropagation();
+        openEditModal(seg.ev);
+      };
+      
       row.appendChild(bar);
     });
-
     els.calendarBody.appendChild(row);
   });
 }
@@ -365,11 +408,79 @@ function renderCalendar(){
 function render(){
   els.monthLabel.textContent = `${state.year}년 ${state.month+1}월`;
   renderWeekdayHeader();
-  renderLegend();
   renderCalendar();
 }
 
-/* ================= 이벤트 바인딩 ================= */
+/* ================= 모달 및 데이터 전송 ================= */
+function openAddModal(date) {
+  document.getElementById('newStart').value = fmtDateForInput(date);
+  document.getElementById('newEnd').value = fmtDateForInput(date);
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newOperator').value = '';
+  document.getElementById('addModalOverlay').style.display = 'flex';
+}
+
+function openEditModal(ev) {
+  document.getElementById('editTitle').value = ev.title;
+  document.getElementById('editOperator').value = ev.operator;
+  document.getElementById('editOriginalStart').value = fmtDateForInput(ev.start);
+  document.getElementById('editModalOverlay').style.display = 'flex';
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+async function submitNewEvent() {
+  if(!WEB_APP_URL) return alert('앱스 스크립트 웹앱 주소(WEB_APP_URL)를 먼저 입력해주세요.');
+  
+  const title = document.getElementById('newTitle').value;
+  const start = document.getElementById('newStart').value;
+  const end = document.getElementById('newEnd').value;
+  const operator = document.getElementById('newOperator').value;
+  
+  if(!title) return alert('교육명을 입력하세요.');
+  
+  const payload = { action: 'addEvent', title, start, end, operator, sheetId: els.sheetIdInput.value };
+  
+  closeModal('addModalOverlay');
+  setStatus('일정 저장 중...', '');
+  
+  try {
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    // 재로딩
+    if(els.sheetIdInput.value) await handleLoadClick();
+  } catch(e) {
+    setStatus('저장 실패', 'err');
+  }
+}
+
+async function submitEditEvent() {
+  if(!WEB_APP_URL) return alert('앱스 스크립트 웹앱 주소(WEB_APP_URL)를 먼저 입력해주세요.');
+
+  const title = document.getElementById('editTitle').value;
+  const operator = document.getElementById('editOperator').value;
+  const start = document.getElementById('editOriginalStart').value;
+  
+  const payload = { action: 'updateOperator', title, start, operator, sheetId: els.sheetIdInput.value };
+  
+  closeModal('editModalOverlay');
+  setStatus('운영자 정보 업데이트 중...', '');
+  
+  try {
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    // 재로딩
+    if(els.sheetIdInput.value) await handleLoadClick();
+  } catch(e) {
+    setStatus('업데이트 실패', 'err');
+  }
+}
+
+/* ================= 이벤트 바인딩 및 초기화 ================= */
 document.getElementById('prevBtn').onclick = ()=>{
   state.month--; if(state.month<0){ state.month=11; state.year--; } render();
 };
@@ -384,10 +495,9 @@ document.getElementById('weekendToggle').onchange = (e)=>{
 };
 document.getElementById('loadBtn').onclick = handleLoadClick;
 
-/* ================= 초기화 ================= */
 (function init(){
   state.events = normalizeEvents(DEMO_EVENTS);
-  setStatus('데모 데이터를 표시하고 있습니다. 구글 시트 ID를 입력하면 실제 일정으로 교체됩니다.', 'demo');
+  setStatus('데이터를 연결하면 실제 일정이 표시됩니다.', 'demo');
   render();
   if(CONFIG.sheetId){
     els.sheetIdInput.value = CONFIG.sheetId;
