@@ -110,9 +110,9 @@
   }
   .info-list dd { margin: 0; font-weight: 700; color: var(--text-light); }
   .info-list dd input, .info-list dd select { width: 100%; min-width: 0; font-family: var(--font); font-size: 16px; font-weight: 600; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); color: var(--text-light); border-radius: 8px; padding: 9px 11px; }
-  .date-range-edit { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .date-range-edit input { flex: 1; min-width: 0; }
-  .date-range-edit span { flex: none; }
+  .date-range-edit { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .date-range-edit input { width: 100%; min-width: 0; }
+  .date-range-edit span { font-size: 12.5px; color: var(--text-muted); }
 
   .staff-label { font-size: 15px; color: var(--text-muted); margin-bottom: 12px; font-weight: 500; }
   .staff-list { display: flex; flex-wrap: wrap; gap: 9px; }
@@ -121,11 +121,14 @@
   .staff-edit-list { display: flex; flex-direction: column; gap: 9px; }
   .staff-edit-list input { font-family: var(--font); font-size: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); color: var(--text-light); border-radius: 8px; padding: 10px 13px; }
 
-  .drawer-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+  .drawer-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 24px; }
+  .drawer-actions-right { display: flex; gap: 10px; }
   .drawer-actions button { border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-size: 14.5px; font-weight: 700; font-family: var(--font); }
   .btn-cancel { background: rgba(255,255,255,.06); color: #E5E7E2; border: 1px solid rgba(255,255,255,.18) !important; }
   .btn-save { background: linear-gradient(135deg, #4C8C68, #2F6B49); color: #fff; box-shadow: 0 8px 20px rgba(62,122,87,.4); }
   .btn-save:hover { filter: brightness(1.06); }
+  .btn-delete { background: rgba(224,90,70,.14); color: #F0A18C; border: 1px solid rgba(224,90,70,.4) !important; }
+  .btn-delete:hover { background: rgba(224,90,70,.24); }
   .color-section { margin-top: 22px; }
   .color-swatches { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .swatch { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
@@ -207,8 +210,11 @@
           <div id="colorWrap"></div>
         </div>
         <div class="drawer-actions" id="drawerActions" style="display:none">
-          <button class="btn-cancel" onclick="exitEditMode()">취소</button>
-          <button class="btn-save" onclick="saveEvent()">저장</button>
+          <button class="btn-delete" id="deleteBtn" onclick="deleteEventHandler()">🗑 삭제</button>
+          <div class="drawer-actions-right">
+            <button class="btn-cancel" onclick="exitEditMode()">취소</button>
+            <button class="btn-save" onclick="saveEvent()">저장</button>
+          </div>
         </div>
       </div>
     </div>
@@ -221,7 +227,7 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzr1nSRplw5UdikxzJJBkBo5bJ2M_tV161QqbjCawToybanpBdtKUNGfxNtn2a9nHAV/exec";
 const CONFIG = { sheetId: '1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU', gid: 0, defaultYear: 2026 };
 const COL = { client:0, title:1, cohort:2, monthHint:3, range:4, duration:5, region:6, vehicle:7, headcount:8, staff1:9, staff2:10, staff3:11, color:12 };
-const PALETTE = ['#EF8080','#F2994A','#F0C349','#7BC47F','#4DB6AC','#57B8E8','#5B8DEF','#9B87F0','#C77DD9','#F08FB0'];
+const PALETTE = ['#EF8080','#F2994A','#F0C349','#7BC47F','#4DB6AC','#57B8E8','#5B8DEF','#9B87F0','#C77DD9','#F08FB0','#C0524A','#D98A3D','#D4B84A','#4E9B6B','#3B8C86','#3F72B0','#5865C2','#8A5CC7','#B4529E','#D9587A'];
 const WD_KR = ['일','월','화','수','목','금','토'];
 
 const state = { year: CONFIG.defaultYear, month: new Date().getMonth(), events: [], categoryColors: new Map() };
@@ -488,6 +494,7 @@ function renderEditMode(){
     </div>
     <input type="hidden" id="editColor" value="${currentColor}" />`;
 
+  document.getElementById('deleteBtn').style.display = isNewEvent ? 'none' : 'inline-block';
   document.getElementById('drawerActions').style.display = 'flex';
 }
 
@@ -523,6 +530,34 @@ function rgbToHexMaybe(rgb){
   const m = rgb.match(/\d+/g);
   if(!m) return rgb;
   return '#' + m.slice(0,3).map(n => (+n).toString(16).padStart(2,'0')).join('');
+}
+
+async function deleteEventHandler(){
+  if(isNewEvent){ closeDrawer(); return; }
+  if(!confirm('정말 이 일정을 삭제할까요? 되돌릴 수 없습니다.')) return;
+
+  const idx = state.events.indexOf(activeEvent);
+  if(idx > -1) state.events.splice(idx, 1);
+  render();
+  closeDrawer();
+
+  if(!WEB_APP_URL){ els.status.textContent = '⚠️ 앱스 스크립트 미연동 — 화면에서만 삭제됐어요.'; els.status.className = 'err'; return; }
+
+  els.status.textContent = '🔄 시트에서 삭제 중...'; els.status.className = '';
+  try{
+    const result = await jsonpRequest({
+      action: 'deleteEvent', sheetId: CONFIG.sheetId,
+      m_title: originalMatch.title, m_cohort: originalMatch.cohort, m_rangeText: originalMatch.rangeText
+    });
+    if(result && result.ok){
+      els.status.textContent = '🟢 삭제 완료'; els.status.className = 'ok';
+    }else{
+      els.status.textContent = `🔴 삭제 실패: ${(result && result.error) || '알 수 없는 오류'}`; els.status.className = 'err';
+    }
+  }catch(e){
+    els.status.textContent = '🔴 삭제 요청 실패'; els.status.className = 'err';
+  }
+  setTimeout(fetchData, 2500);
 }
 
 async function saveEvent(){
