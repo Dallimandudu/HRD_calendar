@@ -136,6 +136,32 @@
   .swatch-custom { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #3A3F47; padding: 0; cursor: pointer; background: transparent; }
   .swatch-view { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); display: inline-block; }
 
+  /* 삭제 등 위험한 동작 전 확인용 커스텀 팝업 (브라우저 기본 confirm 대체) */
+  .confirm-overlay {
+    position: fixed; inset: 0; background: rgba(8,9,11,.55); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 1000;
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: auto; }
+  .confirm-card {
+    width: 320px; max-width: 88vw; padding: 32px 28px 26px; text-align: center; border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)), rgba(24,27,33,.7);
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07);
+    backdrop-filter: blur(22px) saturate(150%); -webkit-backdrop-filter: blur(22px) saturate(150%);
+    transform: scale(.92); transition: transform .2s ease;
+  }
+  .confirm-overlay.open .confirm-card { transform: scale(1); }
+  .confirm-illust { font-size: 52px; margin-bottom: 8px; display: inline-block; animation: confirmWiggle 1.8s ease-in-out infinite; }
+  @keyframes confirmWiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+  .confirm-card h3 { margin: 4px 0 8px; font-size: 19px; font-weight: 800; color: #fff; }
+  .confirm-card p { margin: 0 0 22px; font-size: 13.5px; color: var(--text-muted); line-height: 1.5; }
+  .confirm-actions { display: flex; gap: 10px; }
+  .confirm-actions button { flex: 1; border: none; padding: 12px 0; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+  #confirmCancelBtn { background: rgba(255,255,255,.08); color: #E5E7E2; border: 1px solid rgba(255,255,255,.18) !important; }
+  #confirmOkBtn { background: linear-gradient(135deg, #E06450, #B3402F); color: #fff; box-shadow: 0 8px 20px rgba(179,64,47,.4); }
+  #confirmOkBtn:hover { filter: brightness(1.05); }
+
   .drawer-overlay { display: none; }
 
   /* ===== 모바일: 전체 화면 오버레이로 전환 ===== */
@@ -221,6 +247,18 @@
   </aside>
 </div>
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-card">
+    <div class="confirm-illust">🗑️</div>
+    <h3 id="confirmTitle">정말 삭제할까요?</h3>
+    <p id="confirmMsg">이 작업은 되돌릴 수 없어요.</p>
+    <div class="confirm-actions">
+      <button id="confirmCancelBtn">취소</button>
+      <button id="confirmOkBtn">삭제할게요</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ================= 필수 설정 ================= */
@@ -392,6 +430,28 @@ function render(){
   renderCalendar();
 }
 
+/* ================= 커스텀 확인 팝업 ================= */
+function confirmDialog(title, message){
+  return new Promise(resolve => {
+    const overlay = document.getElementById('confirmOverlay');
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMsg').textContent = message;
+    const okBtn = document.getElementById('confirmOkBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+    const cleanup = result => {
+      overlay.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.classList.add('open');
+  });
+}
+
 /* ================= JSONP 통신 (CORS 우회) =================
    fetch()로는 Apps Script 응답에 CORS 헤더가 없어 브라우저가 결과를 읽지 못합니다.
    <script> 태그로 GET 요청을 걸고 콜백으로 결과를 받는 JSONP 방식은 이 제약을 받지 않습니다. */
@@ -534,7 +594,8 @@ function rgbToHexMaybe(rgb){
 
 async function deleteEventHandler(){
   if(isNewEvent){ closeDrawer(); return; }
-  if(!confirm('정말 이 일정을 삭제할까요? 되돌릴 수 없습니다.')) return;
+  const ok = await confirmDialog('정말 삭제할까요?', '이 일정은 되돌릴 수 없어요.');
+  if(!ok) return;
 
   const idx = state.events.indexOf(activeEvent);
   if(idx > -1) state.events.splice(idx, 1);
