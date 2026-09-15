@@ -37,6 +37,8 @@
   .nav .today-btn, .nav .add-btn { width: auto; padding: 0 16px; font-size: 14px; font-weight: 600; }
   .nav .add-btn { background: var(--accent); border-color: var(--accent); color: #fff; }
   .nav .add-btn:hover { background: #366A4C; }
+  .nav .sheet-btn { background: #3B9FE0; border: 1px solid #3B9FE0; color: #fff; text-decoration: none; display: inline-flex; align-items: center; height: 38px; box-sizing: border-box; }
+  .nav .sheet-btn:hover { background: #2E8ACB; }
 
   .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13.5px; color: var(--text-muted); flex-wrap: wrap; gap: 8px; }
   .status-bar #statusMsg.ok { color: #8FCBA6; }
@@ -73,9 +75,9 @@
 
   /* ===== 우측 푸시 패널 (데스크톱: 캘린더를 밀어내며 등장) ===== */
   .drawer { flex: 0 0 auto; width: 0; padding-left: 0; overflow: hidden; transition: width .32s ease, padding-left .32s ease; position: sticky; top: 28px; align-self: flex-start; }
-  .drawer.open { width: 480px; padding-left: 20px; }
+  .drawer.open { width: min(480px, calc(100vw - 40px)); padding-left: 20px; }
   .drawer-inner {
-    width: 460px; height: calc(100vh - 56px); border-radius: 22px; overflow-y: auto;
+    width: 100%; height: calc(100vh - 56px); border-radius: 22px; overflow-y: auto; overflow-x: hidden; box-sizing: border-box;
     background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)), rgba(24,27,33,.55);
     border: 1px solid rgba(255,255,255,.10);
     box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
@@ -159,6 +161,7 @@
       </div>
       <div class="nav">
         <button class="add-btn" id="addBtn">＋ 일정 추가</button>
+        <a class="today-btn sheet-btn" href="https://docs.google.com/spreadsheets/d/1SZ2ioWu4E6w5wuBkbhrlMTRtrwSF_y7iLVOALy2wFeU/edit?usp=sharing" target="_blank" rel="noopener">📄 데이터 시트</a>
         <button id="prevBtn" title="이전 달">‹</button>
         <div class="month-label" id="monthLabel"></div>
         <button id="nextBtn" title="다음 달">›</button>
